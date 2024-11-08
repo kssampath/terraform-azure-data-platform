@@ -1,20 +1,3 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+HGWO: Hybrid Grey Wolf Optimization for Cloud Workflow Scheduling
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
-
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
-
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+This repository contains the code and resources for Hybrid Grey Wolf Optimization (HGWO), an algorithm developed to optimize the allocation of virtual machines (VMs) to tasks within cloud workflows. HGWO combines the Simulated Annealing (SA) and Grey Wolf Optimizer (GWO) techniques to enhance task scheduling efficiency in Infrastructure as a Service (IaaS) cloud environments.
