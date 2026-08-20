@@ -122,8 +122,8 @@ Each module folder follows the standard convention: `main.tf` (resources), `vari
 | Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) |  **Active**  |
 | App service | `Azureappservice` | App Service plan, web apps, and Azure SQL database | RGs, VNet (PE) | **Active** |
 | Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | **Active**  |
-| Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | Commented out |
-| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | Commented out   |
+| Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | **Active** |
+| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | **Active**   |
 | Key vault | `Keyvault` | Key Vault with access policies and private endpoint | RGs, VNet (PE) | **Active** |
 | App insights | `AppInsights` | Application Insights + Log Analytics workspace | Resource groups | **Active**  |
 
@@ -533,6 +533,18 @@ the pile of now-unused per-VM variables absorbed by the map.
 Collapsed the two web apps into one `for_each`. Renamed 4.x arguments
 (`client_certificate_enabled`). The SQL admin password is now read from Key Vault via
 a data source — the hardcoded credential was removed entirely. SQL private endpoint
+subnet comes from the VNet output.
+
+### Synapse Analytics: mssql migration + Key Vault secret
+
+**Before:** Used `azurerm_sql_server` (with a plaintext admin password variable) and
+`azurerm_sql_database` with `edition = "DataWarehouse"` +
+`requested_service_objective_name = "DW100c"`.
+
+**After:** Migrated to `azurerm_mssql_server` and `azurerm_mssql_database`, where the
+data warehouse is expressed via `sku_name = "DW100c"` and `server_id` (replacing the
+separate edition/objective/server_name arguments). The SQL admin password is read from
+Key Vault via a data source — the plaintext credential was removed. Private endpoint
 subnet comes from the VNet output.
 
 ### Known future improvements

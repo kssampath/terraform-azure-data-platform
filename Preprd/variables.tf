@@ -336,62 +336,45 @@ variable "application_type" {
 }
 
  #Azure Synapse Analytics
-# variable "rgsyn" {
-#   description = "Resource group name"
-#   default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+variable "sqlserver_name" {
+  type        = string
+  description = "Synapse SQL server name"
+}
 
-# variable "sqlserver_name" {
-#   type = string
-#   description = "The sqlserver name"
-#   default = "acs26x012"
-# }
+variable "versionsyn" {
+  type        = string
+  description = "Synapse SQL server version"
+}
 
-# variable "versionsyn" {
-#   type = string
-#   description = "The environment to be built"
-#   default = "12.0"
-# }
+variable "administrator_login_synsql" {
+  type        = string
+  description = "Synapse SQL administrator login"
+}
 
-# variable "administrator_login_synsql" {
-#   type = string
-#   description = "The administrator_login"
-#   default = ""
-# }
+variable "sqldw_name" {
+  type        = string
+  description = "Synapse SQL data warehouse name"
+}
 
-# variable "administrator_login_password_synsql" {
-#   type = string
-#   description = "The administrator_login_password"
-#   default = "dev"
-# }
+variable "sqldw_sku" {
+  type        = string
+  description = "Synapse data warehouse SKU"
+}
 
-# variable "sqldw_name" {
-#   type = string
-#   description = "The sql datawarehouse name"
-#   default = "syn-ads-eus2-edhpreprd-dev-001"
-# }
+variable "sqlser_endpoint" {
+  type        = string
+  description = "Synapse SQL private endpoint name"
+}
 
-# variable "editionsyn" {
-#   type = string
-#   description = "The edition"
-#   default = "DataWarehouse"
-# }
+variable "rgsyn" {
+  type        = string
+  description = "Resource group for Synapse"
+}
 
-# variable "sqlser_endpoint" {
-#   type = string
-#   description = "The sqlserver private endpoint"
-#   default = "pep-a6X0011"
-# }
-
-# variable "synsubnet_id" {
-#   type = string
-#   description = "The subnet_id"
-#   default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-# }
-# variable "requested_service_objective_name" {
-#   type = string
-# }
-
+variable "syn_sql_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name for the Synapse SQL admin password"
+}
 #Azure App service values
 variable "appServPlanName" {
   type        = string
@@ -473,65 +456,13 @@ variable "sql_admin_secret_name" {
   description = "Key Vault secret name for the SQL admin password"
 }
 
-# Databrciks variables
-// variable "dbrlogworkspace-name" {
-//   type        = string
-//   description = "The workspace name"
-//   #default     = "law-ads-eus2-core-dev-001"
-// }
-// variable "vnet_id" {
-//   type        = string
-//   description = "The vnet_id"
-//   default     = ""
-// }
-
-// variable "dbrsku" {
-//   type        = string
-//   description = "The sku"
-//   #default     = "PerGB2018"
-// }
- 
-// variable "security_group_name_public_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
-
-// variable "security_group_name_private_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
-
-// variable "private_address_prefix_dbr" {
-//   type        = list
-//   description = "The private_address_prefix"
-// }
-
-// variable "public_address_prefix_dbr" {
-//   type        = list
-//   description = "The public_address_prefix"
-// }
 
 variable "sku_premium" {
   type        = string
   description = "The sku "
 }
 
-// variable "rgvnet" {
-//   type        = string
-//   description = "Name of resource group which contains the virtual network and subnets"
-// }
 
-// variable "private_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the private subnet"
-// }
-
-// variable "public_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the public subnet"
-// }
 
 variable "rgdbr" {
   type        = string

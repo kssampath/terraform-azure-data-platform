@@ -186,24 +186,31 @@ module "application-Keyvault" {
   Role                     = var.Role
   SupportGroup             = var.SupportGroup
 }
-#  module "application-AzureSynapseAnalytics" {
-#   source                   = "./modules/AzureSynapseAnalytics"
-#   depends_on = [module.application-rg]
-#   // depends_on = [module.application-vnet]
-#   location = var.location
-#   versionsyn = var.versionsyn #"12.0"
-#   editionsyn = var.editionsyn
-#   sqlserver_name = var.sqlserver_name 
-#   requested_service_objective_name = var.requested_service_objective_name
-#   sqldw_name = var.sqldw_name
-#   rgsyn = var.rgsyn
-#   sqlser_endpoint = var.sqlser_endpoint
-#   synsubnet_id = var.synsubnet_id
-#   administrator_login_synsql = var.administrator_login_synsql #"etarrowo"
-#   administrator_login_password_synsql = var.administrator_login_password_synsql #"ab1@cdef"
-#   environment              = var.environment
-#   AppId                    = var.AppId
-#   DataClassification       = var.DataClassification
-#   Role                     = var.Role
-#   SupportGroup             = var.SupportGroup
-#   }
+
+module "application-AzureSynapseAnalytics" {
+  source     = "./modules/AzureSynapseAnalytics"
+  depends_on = [module.application-rg, module.application-vnet]
+
+  sqlserver_name             = var.sqlserver_name
+  versionsyn                 = var.versionsyn
+  administrator_login_synsql = var.administrator_login_synsql
+  sqldw_name                 = var.sqldw_name
+  sqldw_sku                  = var.sqldw_sku
+  sqlser_endpoint            = var.sqlser_endpoint
+
+  # Loose coupling: SQL private endpoint subnet from the VNet output
+  synsubnet_id = module.application-vnet.subnet_ids["pep"]
+
+  # SQL admin password from Key Vault (reuses existing KV vars)
+  keyvault_name             = var.key_vault_name
+  keyvault_rg               = var.rgkv
+  syn_sql_admin_secret_name = var.syn_sql_admin_secret_name
+
+  location           = var.location
+  rgsyn              = var.rgsyn
+  environment        = var.environment
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+}

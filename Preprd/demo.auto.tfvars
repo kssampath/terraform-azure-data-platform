@@ -90,40 +90,6 @@ virtual_machines = {
   }
 }
 
-#Key vault values
-// key_vault_name = "kvadseus2e3wprd1"
-// key_permissions = [
-//                         "get",
-//                         "list",
-//                         "update",
-//                         "Create",
-//                         "import",
-//                         "delete",
-//                         "recover",
-//                         "backup",
-//                         "restore",
-//                         "decrypt",
-//                         "encrypt",
-//                         "unwrapKey",
-//                         "wrapKey",
-//                         "verify",
-//                         "sign"
-//                     ]
-// secret_permissions =   [
-//                         "get",
-//                         "list",
-//                         "set",
-//                         "delete",
-//                         "recover",
-//                         "backup",
-//                         "restore"
-//                     ]
-// key_vault_end_point_name = "kvadseus2edhpreprd1"
-// kvsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-// # "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-// rgkv = "rg-ads-eus2-edh-preprd-dbx-001"
-// #"rg-ads-eus2-pioneer-inn-armtotf"
-// purge_protection_enabled = false
 
 #Datafactory values
 datafactory_name         = "adf-ads-eus2-edhpreprd-001"
@@ -139,17 +105,14 @@ sku_appin                    = "PerGB2018"
 application_type             = "web"
 
 #Synapse Alaytics Values
-rgsyn = "rg-ads-eus2-edh-preprd-syn-001"
-synsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-#"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-versionsyn = "12.0"
-administrator_login_synsql = "etarrowo"
-administrator_login_password_synsql = "ab1@cdef"
-requested_service_objective_name = "DW100c"
-sqlserver_name  = "acs06x010"
-editionsyn = "DataWarehouse"
-sqldw_name = "syn-ads-eus2-edhpreprd-dev-001"
-sqlser_endpoint = "pep-ACS06X010"
+sqlserver_name             = "sql-syn-ads-eus2-edhpreprd-001"
+versionsyn                 = "12.0"
+administrator_login_synsql = "synadmin"
+sqldw_name                 = "syndw-ads-eus2-edhpreprd-001"
+sqldw_sku                  = "DW100c"
+sqlser_endpoint            = "pep-syn-ads-eus2-edhpreprd-001"
+rgsyn                      = "rg-ads-eus2-edh-preprd-syn-005"
+syn_sql_admin_secret_name  = "syn-sql-admin-password"
 
 #Azure App service
 appServPlanName      = "asp-ads-eus2-edhpreprd-001"
@@ -188,3 +151,38 @@ vnet_id                     = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b1
 #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004"
 // private_subnet_name_dbr      = "sn-ads-eus2-analytics-preprd-prv-01"
 // public_subnet_name_dbr          = "sn-ads-eus2-analytics-preprd-pub-01"
+
+#Key vault values
+// key_vault_name = "kvadseus2e3wprd1"
+// key_permissions = [
+//                         "get",
+//                         "list",
+//                         "update",
+//                         "Create",
+//                         "import",
+//                         "delete",
+//                         "recover",
+//                         "backup",
+//                         "restore",
+//                         "decrypt",
+//                         "encrypt",
+//                         "unwrapKey",
+//                         "wrapKey",
+//                         "verify",
+//                         "sign"
+//                     ]
+// secret_permissions =   [
+//                         "get",
+//                         "list",
+//                         "set",
+//                         "delete",
+//                         "recover",
+//                         "backup",
+//                         "restore"
+//                     ]
+// key_vault_end_point_name = "kvadseus2edhpreprd1"
+// kvsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+// # "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+// rgkv = "rg-ads-eus2-edh-preprd-dbx-001"
+// #"rg-ads-eus2-pioneer-inn-armtotf"
+// purge_protection_enabled = false
