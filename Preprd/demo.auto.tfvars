@@ -7,15 +7,30 @@ resource-group =     [ "rg-ads-eus2-edh-preprd-adf-005",
                         "rg-ads-eus2-edh-preprd-syn-005" ]
                         #"test" 
 #Vnet variables
-// vnet_name = "vnet-ads-eus2-analytics-int-edhpreprd-004"
-// address_space_vnet1 = ["10.40.48.0/20"]
-// rgvnet = "test"
-// subnet_name1 = "sn-ads-eus2-analytics-edhpreprd-pep-001"
-// subnet_name2 = "sn-ads-eus2-analytics-preprd-intweb-001"
-// subnet_name3 = "sn-ads-eus2-analytics-preprd-app-001" 
-// address_prefixes_sub1 = "10.40.52.128/26"
-// address_prefixes_sub2 = "10.40.52.64/26"
-// address_prefixes_sub3 = "10.40.52.192/26"
+vnet_name           = "vnet-ads-eus2-analytics-int-edhpreprd-004"
+rgvnet              = "rg-ads-eus2-edh-preprd-dbx-005"
+address_space_vnet1 = ["10.40.48.0/20"]
+subnets = {
+  pep = {
+    name                              = "sn-ads-eus2-analytics-edhpreprd-pep-001"
+    address_prefixes                  = ["10.40.52.0/26"]
+    private_endpoint_network_policies = "Disabled"
+  }
+  app = {
+    name                              = "sn-ads-eus2-analytics-edhpreprd-app-001"
+    address_prefixes                  = ["10.40.52.64/26"]
+    private_endpoint_network_policies = "Enabled"
+  }
+  databricks = {
+    name                              = "sn-ads-eus2-analytics-edhpreprd-dbx-001"
+    address_prefixes                  = ["10.40.52.128/26"]
+    private_endpoint_network_policies = "Enabled"
+  }
+}
+
+key_vault_name           = "kv-ads-eus2-edhpreprd-001"
+rgkv                     = "rg-ads-eus2-edh-preprd-dbx-005"
+purge_protection_enabled = false
 
 # Storage Variables
 storage-name = "dls2adseus2edhpreprd01"
@@ -167,6 +182,7 @@ appsersubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceG
 #databricks Variables
 databricksworkspace_name = "dbx-ads-eus2-edh-preprd-003"
 dbrlogworkspace-name  = "law-ads-eus2-core-edhpreprd-001"
+databricks_managed_resource_group_name = "rg-ads-eus2-edh-preprd-dbx-001"
 // dbrsku  = "PerGB2018"
 sku_premium = "premium"
 // public_address_prefix_dbr  = ["10.40.52.0/26"]

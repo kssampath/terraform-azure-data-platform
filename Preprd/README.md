@@ -118,13 +118,13 @@ Each module folder follows the standard convention: `main.tf` (resources), `vari
 |---|---|---|---|---|
 | Resource groups | `Resourcegroup` | Creates the 7 pre-prod resource groups from a list | — | **Active** |
 | Databricks | `azure-databricks-workspace` | Azure Databricks workspace (premium SKU); NSGs & delegated subnets available | Resource groups | **Active** |
-| Virtual network | `Azurevnet` | Virtual network and subnets | Resource groups | Commented out |
+| Virtual network | `Azurevnet` | Virtual network and subnets | Resource groups | **Active** |
 | Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) | Commented out |
 | App service | `Azureappservice` | App Service plan, web apps, and Azure SQL database | RGs, VNet (PE) | Commented out |
 | Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | Commented out |
 | Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | Commented out |
 | Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | Commented out |
-| Key vault | `Keyvault` | Key Vault with access policies and private endpoint | RGs, VNet (PE) | Commented out |
+| Key vault | `Keyvault` | Key Vault with access policies and private endpoint | RGs, VNet (PE) | **Active** |
 | App insights | `AppInsights` | Application Insights + Log Analytics workspace | Resource groups | Commented out |
 
 ### Resource groups created
@@ -334,7 +334,132 @@ crash.log
 | Diagram script fails with `dot: command not found` | Install Graphviz (`brew install graphviz` / `apt-get install graphviz`) |
 
 ---
+## Modernisation
+This repository was originally written ~5 years ago against Terraform 0.12 and
+the azurerm 2.x provider. It has been modernised to current standards (Terraform
+1.x, azurerm 4.x) with an emphasis on loose coupling, type safety, and secure
+secret handling. The changes below are documented before → problem → after.
+### Terraform & provider versions
 
+**Before:** `required_version = ">= 0.12"`, azurerm pinned as `version = ">= 2.0.0"`
+inside the provider block (the deprecated style).
+
+**Problem:** An open lower-bound constraint (`>= 2.0.0`) allows major-version jumps
+that carry breaking changes, so a routine `init` could silently pull an incompatible
+provider. The `version` argument in the provider block is also the legacy location.
+
+**After:** Declared providers in a `required_providers` block with a pessimistic
+constraint (`azurerm = "~> 4.0"`, i.e. >= 4.0 and < 5.0), and set
+`required_version = ">= 1.0"`. This guarantees reproducible, non-breaking upgrades.
+The provider block is now minimal (`features {}`), dropping redundant settings.
+
+### State management
+
+**Before:** State stored locally in `terraform.tfstate` and committed to the repo.
+
+**Problem:** Local state can't be shared across a team, offers no locking (risking
+corruption on concurrent applies), and can contain secrets.
+
+**After:** Removed state files from version control (`.gitignore`) and added an
+`azurerm` remote backend configuration (Azure Storage) with per-environment state
+keys. Azure Blob provides automatic state locking.
+
+### Remote state backend
+
+**Before:** State stored locally in `terraform.tfstate` (committed to the repo).
+
+**Problem:** Local state can't be shared across a team, offers no locking (risking
+state corruption on concurrent applies), and often contains secrets.
+
+**After:** Added an `azurerm` backend configuration storing state in an Azure Storage
+Account, which provides shared access and automatic state locking. State files are
+keyed per environment (`preprd.terraform.tfstate`) to keep environments isolated.
+
+### `count` → `for_each` for resource groups
+
+**Before:** The resource-group module created its 7 RGs with `count` over a list,
+tracking each by list index (`[0]`, `[1]`, ...).
+
+**Problem:** Index-based tracking means removing an item from the middle of the
+list shifts every later item down a position, causing Terraform to destroy and
+recreate unrelated resource groups.
+
+**After:** Converted to `for_each` over `toset(var.resource-group)`, so each RG is
+tracked by its unique name as a stable key. Adding or removing one RG now affects
+only that RG, leaving the others untouched.
+
+### Databricks workspace
+
+**Before:** Workspace created without an explicit managed resource group name, and
+pinned to older version constraints.
+
+**After:** Added `managed_resource_group_name` following the project naming
+convention, so the Databricks-owned backing resource group (holding the cluster
+VMs, storage, and VNet) is named consistently rather than auto-generated. Verified
+the workspace resource against azurerm 4.x (core arguments unchanged) and updated
+version constraints.
+
+### VNet module rewrite (for_each over a typed map)
+
+**Before:** Three near-identical `azurerm_subnet` blocks copy-pasted.
+
+**Problem:** All three reused the same `subnet_name1` variable (so subnets would
+collide on name), and two referenced `address_prefixes_sub2/3` variables that were
+never declared. The blocks also used 2.x subnet syntax removed in 4.x.
+
+**After:** Rewrote as a single `for_each` over a `map(object({...}))` of subnet
+definitions, giving each subnet a unique name and non-overlapping CIDR. The typed
+object constraint documents and enforces the shape of each subnet entry. Migrated to
+4.x syntax: `address_prefixes` (list, was singular `address_prefix`) and
+`private_endpoint_network_policies` (string enum, was the removed bool
+`enforce_private_link_endpoint_network_policies`).
+
+### Key Vault: access policies → RBAC
+
+**Before:** Key Vault used the legacy access-policy model with per-operation
+permission lists (`key_permissions`, `secret_permissions`).
+
+**Problem:** Access policies are a Key-Vault-specific permission system, separate
+from the rest of Azure IAM, and must be managed per-vault. Microsoft now recommends
+RBAC for new vaults.
+
+**After:** Enabled RBAC authorization (`rbac_authorization_enabled = true` — note the
+older `enable_rbac_authorization` is deprecated in 4.x and removed in 5.x) and grant
+data-plane access via scoped `azurerm_role_assignment` resources using standard roles
+(e.g. Key Vault Administrator). This unifies vault access with Azure's IAM model and
+supports scope inheritance.
+### Secrets handling
+
+**Before:** VM and Synapse admin passwords stored in plaintext in `demo.auto.tfvars`,
+committed to the repository.
+
+**Problem:** Committed secrets are exposed to anyone with repo access and persist in
+git history even after removal.
+
+**After:** Removed plaintext credentials. Secret variables are marked `sensitive = true`;
+the intended pattern reads secrets at runtime from Azure Key Vault via data sources, so
+credentials never enter version control. (Sample credentials that were previously
+committed have been rotated.)
+
+### Loose coupling via module outputs
+
+**Before:** Consumer modules received full hardcoded subnet resource IDs as input
+variables (e.g. `kvsubnet_id = "/subscriptions/.../subnets/..."`).
+
+**Problem:** Hardcoded resource paths couple every module to a specific VNet layout;
+any change means hand-editing paths in multiple places.
+
+**After:** The VNet module exposes a `subnet_ids` output (a map of logical name → ID)
+and the Key Vault module exposes its vault ID. The root wires modules together by
+referencing these outputs, so no module hardcodes another's internals. The Key Vault
+module's private endpoint was decoupled entirely — it will be added downstream once
+the VNet is available, keeping the vault module independently deployable.
+
+### Known future improvements
+- Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames
+  resolve to private IPs automatically.
+- Continue migrating the remaining modules (VM, App Service, Storage, Data Factory,
+  Synapse) from 2.x resource types to their 4.x equivalents.
 ## License
 
 Add your license here (e.g. MIT). No license file is currently present in the repository.

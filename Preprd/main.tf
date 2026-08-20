@@ -146,6 +146,7 @@ module "databricks-workspace" {
   depends_on = [module.application-rg]
   // depends_on = [module.application-vnet]
   rgdbr        = var.rgdbr
+  databricks_managed_resource_group_name =  var.databricks_managed_resource_group_name
   location                    = var.location
   // dbrsku = var.dbrsku
   // vnet_name = var.vnet_name

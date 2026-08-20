@@ -1,4 +1,10 @@
-# resource group name 
+# If you don't declare varibales in the root variables.tf, you will get an error like this:
+# Error: Reference to undeclared input variable
+# The line in demo.auto.tfvars has nowhere to land. Terraform sees a value for a variable the root doesn't know about.
+# The root declaration lets the value enter your configuration from the tfvars file.
+# The module declaration lets the value enter the module from the root.
+
+# # resource group name 
 variable "resource-group" {
   type = list
   description = "The application name used to build resources"
@@ -609,4 +615,7 @@ variable "databricksworkspace_name" {
   description = "Name of the workspace"
 }
 
-
+variable "databricks_managed_resource_group_name" {
+  type        = string
+  description = "Name of the managed resource group for Databricks workspace"
+}

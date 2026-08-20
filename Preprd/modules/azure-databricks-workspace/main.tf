@@ -1,3 +1,10 @@
+terraform { 
+  required_providers { 
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
+    } 
+  } 
+}
+
 // // Create the log_analytics_workspace
 // resource "azurerm_log_analytics_workspace" "databricks-loganalytics" {
 //   name                = var.dbrlogworkspace-name #"law-ads-eus2-core-dev-001"
@@ -88,7 +95,10 @@
 resource "azurerm_databricks_workspace" "module-databricks" {
   name                = var.databricksworkspace_name
   resource_group_name = var.rgdbr
+  #hold the workspace
+  managed_resource_group_name = var.databricks_managed_resource_group_name
   location            = var.location
+
   sku                 = var.sku_premium #"premium"
   
   // custom_parameters {

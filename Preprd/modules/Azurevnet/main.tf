@@ -1,36 +1,33 @@
-// Create the virtual network
+terraform { 
+  required_providers { 
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
+    } 
+  } 
+}
+
+# Create the virtual network
 resource "azurerm_virtual_network" "virtual-network" {
-  name                = var.vnet_name #"vnet-ads-eus2-analytics-int-edhpreprd-004"
-  address_space       = var.address_space_vnet1 #["10.40.48.0/20"]
-  location            = var.location #"eastus2" 
-  resource_group_name = var.rgvnet #"rg-ads-eus2-pioneer-inn-armtotf"
- 
-}
-// Create the subnets in vnet
-resource "azurerm_subnet" "public-subnet1" {
-  name                 = var.subnet_name1 #"sn-ads-eus2-analytics-edhpreprd-pep-001"
-  depends_on          = [azurerm_virtual_network.virtual-network]
-  resource_group_name  = var.rgvnet
-  virtual_network_name = var.vnet_name #"vnet-ads-eus2-analytics-int-edhpreprd-004"
-  address_prefix     = var.address_prefixes_sub1  #"10.40.52.0/26"
-  enforce_private_link_endpoint_network_policies = true
+  name                = var.vnet_name
+  address_space       = var.address_space_vnet1
+  location            = var.location
+  resource_group_name = var.rgvnet
 }
 
-resource "azurerm_subnet" "public-subnet2" {
-  name                 = var.subnet_name1 #"sn-ads-eus2-analytics-edhpreprd-pep-001"
-  depends_on          = [azurerm_virtual_network.virtual-network]
-  resource_group_name  = var.rgvnet
-  virtual_network_name = var.vnet_name #"vnet-ads-eus2-analytics-int-edhpreprd-004"
-  address_prefix     = var.address_prefixes_sub2  #"10.40.52.0/26"
-  enforce_private_link_endpoint_network_policies = true
-}
+# Create all subnets by iterating over a map of subnet definitions.
+# each.key is the subnet's logical name; each.value is its settings object.
+# Adding a subnet = adding one map entry, with no risk of copy-paste errors.
+resource "azurerm_subnet" "subnets" {
+  for_each = var.subnets
 
-resource "azurerm_subnet" "public-subnet3" {
-  name                 = var.subnet_name1 #"sn-ads-eus2-analytics-edhpreprd-pep-001"
-  depends_on          = [azurerm_virtual_network.virtual-network]
+  name                 = each.value.name
   resource_group_name  = var.rgvnet
-  virtual_network_name = var.vnet_name #"vnet-ads-eus2-analytics-int-edhpreprd-004"
-  address_prefix     = var.address_prefixes_sub3  #"10.40.52.0/26"
-  enforce_private_link_endpoint_network_policies = true
+  virtual_network_name = azurerm_virtual_network.virtual-network.name
+
+  # 4.x: address_prefixes is a LIST (was singular address_prefix in 2.x)
+  address_prefixes = each.value.address_prefixes
+
+  # 4.x: string enum (was the removed bool enforce_private_link_endpoint_network_policies).
+  # "Disabled" lets private endpoints attach; "Enabled" keeps standard network policies.
+  private_endpoint_network_policies = each.value.private_endpoint_network_policies
 }
 

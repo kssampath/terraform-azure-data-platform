@@ -26,7 +26,10 @@ variable "location" {
   type        = string
   description = "Location in which Databricks will be deployed"
 }
-
+variable "databricks_managed_resource_group_name" {
+  type        = string
+  description = "Name of the managed resource group for Databricks workspace"
+}
 // variable "private_address_prefix_dbr" {
 //   type        = list
 //   description = "The private_address_prefix"
