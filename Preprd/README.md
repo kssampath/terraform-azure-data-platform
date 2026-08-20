@@ -467,6 +467,18 @@ legacy; Microsoft now recommends connection-string-based telemetry) and marked i
 constraints to the remaining variables. The workspace-linked App Insights pattern
 (via `workspace_id`) was already current and retained.
 
+### Data Factory: loose-coupled private endpoint + managed identity
+
+**Before:** The Data Factory resource had no tags (they were inside a commented-out
+block), the module carried hardcoded principal/tenant IDs and Azure DevOps URLs in a
+commented `identity`/`github_configuration` block, and the private endpoint took a
+hardcoded 200-character subnet path via `dfacsubnet_id`.
+
+**After:** Added a clean `identity { type = "SystemAssigned" }` (Azure generates the
+IDs — none hardcoded) so the factory can authenticate to other services without stored
+credentials, and added governance tags to the factory itself. The private endpoint's
+subnet ID now comes from the VNet module's `subnet_ids["pep"]` output rather than a
+hardcoded path — the first consumer of the loose-coupling
 
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames

@@ -355,29 +355,20 @@ variable "SupportGroup" {
 // }
 
 #Datafactory variables
-# variable "datafactory_name" {
-#   type = string
-#   description = "Datafactory Name"
-# #  default = "adf-ads-eus2-edhpreprd-dev-002"
-# }
+variable "datafactory_name" {
+  type        = string
+  description = "Data Factory name"
+}
 
-# variable "rgdfac" {
-#   description = "Resource group name of datafactory"
-# #  default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+variable "rgdfac" {
+  type        = string
+  description = "Resource group for the Data Factory"
+}
 
-# variable "datafactory_endpointname" {
-#   type = string
-#   description = "datafactory private endpoint name"
-# #  default = "pep-adf-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "dfacsubnet_id" {
-#   type = string
-#   description = "The subnet_id used in datafactory"
-# #  default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-# }
-
+variable "datafactory_endpointname" {
+  type        = string
+  description = "Data Factory private endpoint name"
+}
 
 #AppInsights name
 variable "loganalytics_workspace_appin" {

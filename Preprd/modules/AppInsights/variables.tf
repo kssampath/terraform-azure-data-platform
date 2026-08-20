@@ -28,12 +28,6 @@ variable "sku_appin" {
   // default = "PerGB2018"
 }
 
-// variable "retention_days" {
-//   type = string
-//   description = "The retention days"
-//   default = "30"
-// }
-
 variable "appinsights_name" {
   type = string
   description = "The appinsights name"

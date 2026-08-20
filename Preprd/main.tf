@@ -18,7 +18,24 @@ module "application-vnet" {
   address_space_vnet1 = var.address_space_vnet1
   subnets             = var.subnets
 }
+module "application-datafactory" {
+  source                   = "./modules/Datafactory"
+  depends_on               = [module.application-rg, module.application-vnet]
+  datafactory_name         = var.datafactory_name
+  rgdfac                   = var.rgdfac
+  location                 = var.location
+  datafactory_endpointname = var.datafactory_endpointname
 
+  # Loose coupling: the PEP subnet ID comes from the VNet module's output,
+  # not a hardcoded path. If the VNet changes, this keeps working.
+  dfacsubnet_id = module.application-vnet.subnet_ids["pep"]
+
+  environment        = var.environment
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+}
 #  module "application-ctrm" {
 #   source                   = "./modules/VirtualMachine"
 #   depends_on = [module.application-rg]

@@ -125,11 +125,9 @@ managed_disk_type_name2 = "acs09l194-datadisk-01"
 // purge_protection_enabled = false
 
 #Datafactory values
-datafactory_name = "adf-ads-eus2-edh-preprd-001"
-rgdfac = "rg-ads-eus2-edh-preprd-adf-001"
-datafactory_endpointname = "pep-ads-eus2-edh-preprd-001"
-dfacsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-#"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+datafactory_name         = "adf-ads-eus2-edhpreprd-001"
+rgdfac                   = "rg-ads-eus2-edh-preprd-adf-005"
+datafactory_endpointname = "pep-adf-ads-eus2-edhpreprd-001"
 
 #AppInsights Values
 loganalytics_workspace_appin = "log-ads-eus2-edhpreprd-001"

@@ -1,57 +1,49 @@
 variable "location" {
-  default = "eastus2"
+  type        = string
+  description = "Azure region"
 }
 
 variable "environment" {
-  type = string
-  description = "The environment to be built"
-  default = "dev"
+  type        = string
+  description = "Environment name (governance tag)"
 }
 
 variable "datafactory_name" {
-  type = string
-  description = "datafactory name"
-#  default = "adf-ads-eus2-edhpreprd-dev-002"
+  type        = string
+  description = "Data Factory name"
 }
 
 variable "rgdfac" {
-  description = "Resource group name"
-#  default = "rg-ads-eus2-pioneer-inn-armtotf"
+  type        = string
+  description = "Resource group for the Data Factory"
 }
 
 variable "datafactory_endpointname" {
-  type = string
-  description = "datafactory private endpoint name"
-#  default = "pep-adf-ads-eus2-edhpreprd-dev-001"
+  type        = string
+  description = "Data Factory private endpoint name"
 }
 
 variable "dfacsubnet_id" {
-  type = string
-  description = "The subnet_id"
-#  default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+  type        = string
+  description = "Subnet ID for the private endpoint (passed from the VNet module output)"
 }
 
-
 variable "AppId" {
-  type = string
-  description = "The AppId"
-#  default = "TBD" 
+  type        = string
+  description = "Governance tag: application identifier"
 }
 
 variable "DataClassification" {
-  type = string
-  description = "The DataClassification"
-#  default = "CONFIDENTIAL"
+  type        = string
+  description = "Governance tag: data classification"
 }
 
 variable "Role" {
-  type = string
-  description = "The Role"
-#  default = "Tools"
+  type        = string
+  description = "Governance tag: workload role"
 }
 
 variable "SupportGroup" {
-  type = string
-  description = "The SupportGroup"
-#  default = "ADCS.Cloud.Infrastructure"
+  type        = string
+  description = "Governance tag: support group"
 }
