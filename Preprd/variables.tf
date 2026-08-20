@@ -14,6 +14,39 @@ variable "resource-group" {
 variable "location" {
   type = string
   #default = "eastus2"
+}variable "storage-name" {
+  type        = string
+  description = "Storage account name (ADLS Gen2)"
+}
+
+variable "storage_rg" {
+  type        = string
+  description = "Resource group for the storage account"
+}
+
+variable "account-tier" {
+  type        = string
+  description = "Storage account tier"
+}
+
+variable "replication-type" {
+  type        = string
+  description = "Storage replication type"
+}
+
+variable "storage-kind" {
+  type        = string
+  description = "Storage account kind"
+}
+
+variable "storage-tls" {
+  type        = string
+  description = "Minimum TLS version"
+}
+
+variable "storage_private_endpoints" {
+  type        = map(string)
+  description = "Map of storage sub-resource type to private endpoint name"
 }
 
 # Variables of Vnet and subnets

@@ -130,31 +130,27 @@ module "application-appinsights" {
   SupportGroup                 = var.SupportGroup
   environment                  = var.environment
 }
+module "application-storage" {
+  source           = "./modules/StorageAccount"
+  depends_on       = [module.application-rg, module.application-vnet]
+  storage-name     = var.storage-name
+  storage_rg       = var.storage_rg
+  location         = var.location
+  account-tier     = var.account-tier
+  replication-type = var.replication-type
+  storage-kind     = var.storage-kind
+  storage-tls      = var.storage-tls
 
+  # Loose coupling: PEP subnet from the VNet output
+  storsubnet_id     = module.application-vnet.subnet_ids["pep"]
+  private_endpoints = var.storage_private_endpoints
 
-#  module "application-storage" {
-#    source                   = "./modules/StorageAccount"
-#    depends_on = [module.application-rg]
-  //  depends_on               = [module.application-vnet]
-  #  storage-name             = var.storage-name
-  #  storage_rg               = var.storage_rg
-  #  storsubnet_id           = var.storsubnet_id
-  #  location                 = var.location
-  #  account-tier             = var.account-tier
-  #  replication-type         = var.replication-type
-  #  storage-kind             = var.storage-kind
-  #  storage-tls              = var.storage-tls
-  #  privateendpointnameBlob  = var.privateendpointnameBlob
-  #  privateendpointnametb    = var.privateendpointnametb
-  #  privateendpointnamefile  = var.privateendpointnamefile
-  #  privateendpointnamequ    = var.privateendpointnamequ
-  #  privateendpointnamedfs   = var.privateendpointnamedfs
-  #  AppId                    = var.AppId
-  #  DataClassification       = var.DataClassification
-  #  Role                     = var.Role
-  #  SupportGroup             = var.SupportGroup
-  #  environment              = var.environment
-  # }
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+  environment        = var.environment
+}
 
 
 module "databricks-workspace" {

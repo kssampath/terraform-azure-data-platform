@@ -33,22 +33,21 @@ rgkv                     = "rg-ads-eus2-edh-preprd-dbx-005"
 purge_protection_enabled = false
 
 # Storage Variables
-storage-name = "dls2adseus2edhpreprd01"
-storsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-account-tier = "Standard"
+storage-name     = "dls2adseus2edhpreprd001"
+storage_rg       = "rg-ads-eus2-edh-preprd-dls2-005"
+account-tier     = "Standard"
 replication-type = "ZRS"
-storage-kind = "StorageV2"
-storage-tls = "TLS1_2"
-location     = "eastus"
-storage_rg = "rg-ads-eus2-edh-preprd-dls2-001"
-#"rg-ads-eus2-pioneer-inn-armtotf"
+storage-kind     = "StorageV2"
+storage-tls      = "TLS1_2"
 
-# PE Variables
-privateendpointnameBlob = "pep-dls2-blob-ads-eus2-edh-preprd-001"
-privateendpointnamedfs = "pep-dls2-dfs-ads-eus2-edhpreprd-dev-001"
-privateendpointnametb = "pep-dls2-table-ads-eus2-edhpreprd-dev-001"
-privateendpointnamefile = "pep-dls2-file-ads-eus2-edh-preprd-001"
-privateendpointnamequ = "pep-dls2-queue-ads-eus2-edh-preprd-001"
+storage_private_endpoints = {
+  blob  = "pep-dls2-blob-ads-eus2-edhpreprd-001"
+  dfs   = "pep-dls2-dfs-ads-eus2-edhpreprd-001"
+  file  = "pep-dls2-file-ads-eus2-edhpreprd-001"
+  queue = "pep-dls2-queue-ads-eus2-edhpreprd-001"
+  table = "pep-dls2-table-ads-eus2-edhpreprd-001"
+}
+
 
 # TAG values
 AppId = "TBD"
@@ -128,6 +127,7 @@ managed_disk_type_name2 = "acs09l194-datadisk-01"
 datafactory_name         = "adf-ads-eus2-edhpreprd-001"
 rgdfac                   = "rg-ads-eus2-edh-preprd-adf-005"
 datafactory_endpointname = "pep-adf-ads-eus2-edhpreprd-001"
+
 
 #AppInsights Values
 loganalytics_workspace_appin = "log-ads-eus2-edhpreprd-001"

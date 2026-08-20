@@ -480,6 +480,24 @@ credentials, and added governance tags to the factory itself. The private endpoi
 subnet ID now comes from the VNet module's `subnet_ids["pep"]` output rather than a
 hardcoded path — the first consumer of the loose-coupling
 
+### Storage (ADLS Gen2): DRY private endpoints + security hardening
+
+**Before:** Five near-identical `azurerm_private_endpoint` blocks (blob, dfs, file,
+queue, table), the storage account used 2.x argument names, and `network_rules` had
+`default_action = "Allow"`.
+
+**Problem:** `default_action = "Allow"` accepts public traffic by default, defeating the
+purpose of the private endpoints. The 2.x arguments are removed in 4.x. Five copy-pasted
+blocks are error-prone to maintain.
+
+**After:** Collapsed the five endpoints into a single `for_each` over a
+`map(string)` of sub-resource type → endpoint name. Migrated renamed arguments
+(`enable_https_traffic_only` → `https_traffic_only_enabled`,
+`allow_blob_public_access` → `allow_nested_items_to_be_public`) and hardened the
+network rules to `default_action = "Deny"` with `bypass = ["AzureServices"]`, so the
+account is reachable only through its private endpoints. Wired the PEP subnet from the
+VNet output (loose coupling) and added outputs.
+
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames
   resolve to private IPs automatically.

@@ -49,36 +49,12 @@ variable "storage-tls" {
 	description = "The storage tls"
   #default = "TLS1_2"
 }
-variable "privateendpointnameBlob" {
-  type = string
-  description = "The privateend point of Blob"
-  #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
+# Map of storage sub-resource type -> private endpoint name.
+# Keys must be valid storage sub-resources: blob, dfs, file, queue, table.
+variable "private_endpoints" {
+  type        = map(string)
+  description = "Map of storage sub-resource type to its private endpoint name"
 }
-variable "privateendpointnamedfs" {
-  type = string
-  description = "The privateend point of dfs"
-  #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-}
-variable "privateendpointnametb" {
-  type = string
-  description = "The privateend point of table"
-  #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-}
-variable "privateendpointnamefile" {
-  type = string
-  description = "The privateend point of file"
-  #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-}
-variable "privateendpointnamequ" {
-  type = string
-  description = "The privateend point of Queue"
-  #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-}
-// variable "subnetid" {
-//   type = string
-//   #default = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/rg-ads-eus2-dstk-dev-001/providers/Microsoft.Network/virtualNetworks/rg-ads-eus2-dstk-dev-001-network/subnets/rg-ads-eus2-edhpreprd-dev-001-subnet"
-// }
-
 variable "AppId" {
   type = string
   description = "The AppId"
@@ -102,3 +78,4 @@ variable "SupportGroup" {
   description = "The SupportGroup"
   #default = "ADCS.Cloud.Infrastructure"
 }
+
