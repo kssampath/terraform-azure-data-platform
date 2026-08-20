@@ -121,11 +121,11 @@ Each module folder follows the standard convention: `main.tf` (resources), `vari
 | Virtual network | `Azurevnet` | Virtual network and subnets | Resource groups | **Active** |
 | Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) | Commented out |
 | App service | `Azureappservice` | App Service plan, web apps, and Azure SQL database | RGs, VNet (PE) | Commented out |
-| Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | Commented out |
+| Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | **Active**  |
 | Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | Commented out |
-| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | Commented out |
+| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | Commented out   |
 | Key vault | `Keyvault` | Key Vault with access policies and private endpoint | RGs, VNet (PE) | **Active** |
-| App insights | `AppInsights` | Application Insights + Log Analytics workspace | Resource groups | Commented out |
+| App insights | `AppInsights` | Application Insights + Log Analytics workspace | Resource groups | **Active**  |
 
 ### Resource groups created
 
@@ -497,6 +497,26 @@ blocks are error-prone to maintain.
 network rules to `default_action = "Deny"` with `bypass = ["AzureServices"]`, so the
 account is reachable only through its private endpoints. Wired the PEP subnet from the
 VNet output (loose coupling) and added outputs.
+
+
+### Virtual Machine (CTRM): modern VM resource + Key Vault secrets + DRY
+
+**Before:** Two near-identical VMs built with the deprecated `azurerm_virtual_machine`
+resource (with nested `os_profile`, `storage_os_disk`, `storage_image_reference`
+blocks), duplicated across ~8 resources (2 VMs, 2 NICs, 2 disks, 2 attachments). The
+admin password was partly wired to a Key Vault data source but with hardcoded vault
+and secret names.
+
+**After:** Migrated to the modern `azurerm_linux_virtual_machine` resource
+(top-level `admin_password`, `os_disk`, `source_image_reference`,
+`disable_password_authentication`). Collapsed all eight resources into four `for_each`
+blocks over a typed `map(object)` of VM definitions, paired by key so each VM aligns
+with its NIC and data disk. The admin password is read at runtime from Key Vault via
+data sources (vault and secret names now variables) — no credential ever appears in
+code or tfvars. NIC subnet comes from the VNet `subnet_ids["app"]` output.
+Migrated 4.x disk args (`zone` string, numeric `disk_size_gb`/`lun`) and removed
+the pile of now-unused per-VM variables absorbed by the map.
+
 
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames

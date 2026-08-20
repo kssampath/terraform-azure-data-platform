@@ -14,7 +14,8 @@ variable "resource-group" {
 variable "location" {
   type = string
   #default = "eastus2"
-}variable "storage-name" {
+}
+variable "storage-name" {
   type        = string
   description = "Storage account name (ADLS Gen2)"
 }
@@ -195,168 +196,73 @@ variable "SupportGroup" {
 
 
 #Variables of Virtual Machine
+variable "virtual_machines" {
+  type = map(object({
+    name           = string
+    nic_name       = string
+    ip_config_name = string
+    computer_name  = string
+    admin_username = string
+    os_disk_name   = string
+    data_disk_name = string
+  }))
+  description = "Map of VM definitions, keyed by logical name"
+}
 
-# variable "vmnicsub_id" {
-#   type = string
-#   description = "The vmnicsubnet_id"
-#   default = ""
-# }
-# variable "caching" {
-#   type = string
-#   description = "Resource group name"
-#   default = "ReadWrite"
-# }
+variable "rgvm" {
+  type        = string
+  description = "Resource group for the CTRM VMs"
+}
 
-# variable "os_disk1" {
-#   type = string
-#   description = "storage_os_disk name"
-#   #default = "acs29l018-osdisk-20210805-181232"
-# }
+variable "vm_size" {
+  type        = string
+  description = "VM size"
+}
 
-# variable "os_disk2" {
-#   type = string
-#   description = "storage_os_disk name"
-#  # default = "acs29l018-osdisk-20210805-181232"
-# }
+variable "private_ip_address_allocation" {
+  type        = string
+  description = "Private IP allocation method"
+}
 
-# variable "vm1" {
-#   type = string
-#   description = "virtual machine name 1"
-#   default = "ACS29L018"
-# }
+variable "publisher" {
+  type        = string
+  description = "VM image publisher"
+}
 
-# variable "vm2" {
-#   type = string
-#   description = "virtual machine name 2"
-#   default = "ACS29L019"
-# }
+variable "offer" {
+  type        = string
+  description = "VM image offer"
+}
 
-# variable "os_type" {
-#   type = string
-#   description = ""
-#   default = ""
-# }
+variable "sku" {
+  type        = string
+  description = "VM image SKU"
+}
 
-# variable "vmsubnetname" {
-#   type = string
-#   description = "The subnet name"
-#   default = ""
-# }
+variable "version1" {
+  type        = string
+  description = "VM image version"
+}
 
-# // variable "vmsb_add" {
-# //   type = list
-# //   description = "The address vprefixes"
-# //   #default = ""
-# // }
+variable "caching" {
+  type        = string
+  description = "OS disk caching"
+}
 
-# variable "nicname1" {
-#   type = string
-#   description = "The nic1 name"
-#   default = ""
-# }
+variable "managed_disk_type" {
+  type        = string
+  description = "OS disk storage account type"
+}
 
-# variable "nicname2" {
-#   type = string
-#   description = "The nic2 name"
-#   default = ""
-# }
+variable "storage_account_type" {
+  type        = string
+  description = "Data disk storage account type"
+}
 
-# variable "private_ip_address_allocation" {
-#   type = string
-#   description = "The private_ip_address_allocation"
-#   default = ""
-# }
-
-# variable "rgvm" {
-#   type = string
-#   description = "The Resourse group of VM"
-#   default = ""
-# }
-
-# variable "vm_size" {
-#   type = string
-#   description = "The vm size"
-#   default = ""
-# }
-
-# variable "publisher" {
-#   type = string
-#   description = "The publisher"
-#   default = ""
-# }
-# variable "offer" {
-#   type = string
-#   description = "The offer"
-#   default = ""
-# }
-# variable "computer_name1" {
-#   type = string
-#   description = "The computer name1"
-#  default = ""
-# }
-# variable "admin_username1" {
-#   type = string
-#   description = "The admin username"
-#  default = ""
-# }
-# variable "admin_password1" {
-#   type = string
-#   description = "The admin password"
-#  default = ""
-# }
-# variable "computer_name2" {
-#   type = string
-#   description = "The computer name2"
-#  default = ""
-# }
-# variable "admin_username2" {
-#   type = string
-#   description = "The admin username2"
-#  default = ""
-# }
-# variable "admin_password2" {
-#   type = string
-#   description = "The admin password2"
-#  default = ""
-# }
-# variable "sku" {
-#   type = string
-#   description = "The sku"
-#  default = ""
-# }
-# variable "version1" {
-#   type = string
-#   description = "The version"
-#  default = ""
-# }
-# variable "managed_disk_type" {
-#   type = string
-#   description = "managed_disk_type"
-#  default = ""
-# }
-# variable "managed_disk_type_name1" {
-#   type = string
-#   description = "Managed_disk_type name1"
-#  default = ""
-# }
-# variable "managed_disk_type_name2" {
-#   type = string
-#   description = "Managed_disk_type name2"
-#  default = ""
-# }
-
-# variable "storage_account_type" {
-#   type = string
-#   description = "Storage_account_type (VM)"
-#  default = ""
-# }
-
-# variable "create_option" {
-#   type = string
-#   description = ""
-#   #default = ""
-# }
-
+variable "vm_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name holding the VM admin password"
+}
 
 #Keyvault variables
 // variable "key_vault_name" {

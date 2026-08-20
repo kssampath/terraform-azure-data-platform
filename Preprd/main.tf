@@ -36,49 +36,40 @@ module "application-datafactory" {
   Role               = var.Role
   SupportGroup       = var.SupportGroup
 }
-#  module "application-ctrm" {
-#   source                   = "./modules/VirtualMachine"
-#   depends_on = [module.application-rg]
-  // depends_on = [module.application-vnet]
-  # vmnicsub_id = var.vmnicsub_id
-  # vm1  = var.vm1
-  # vm2  = var.vm2 
-  // vmsb_add = var.vmsb_add
-  // vnet = var.vnet_name
-  // rgvnet = var.rgvnet
-  # nicname1                 = var.nicname1
-  # nicname2                 = var.nicname2
-  # location                 = var.location
-  # vmsubnetname             = var.vmsubnetname 
-  # private_ip_address_allocation = var.private_ip_address_allocation
-  # vm_size                  = var.vm_size
-  # publisher = var.publisher #"RedHat"
-  # offer     = var.offer #"RHEL"
-  # sku       = var.sku #"7.8"  
-  # version1   = var.version1
-  # caching   = var.caching
-  # create_option = var.create_option
-  # managed_disk_type = var.managed_disk_type #"Premium_LRS"
-#   os_type = var.os_type
-#   os_disk1  = var.os_disk1
-#   os_disk2  = var.os_disk2
-#   computer_name1 = var.computer_name1 #"ACS29L018"
-#   admin_username1 = var.admin_username1 # "ctrmadmin"
-#   admin_password1 = var.admin_password1 #"Ab@c123"c
-#   computer_name2 = var.computer_name2 #"ACS29L018"
-#   admin_username2 = var.admin_username2 # "ctrmadmin"
-#   admin_password2 = var.admin_password2 #"Ab@c123"c
-#   managed_disk_type_name1 = var.managed_disk_type_name1
-#   managed_disk_type_name2 = var.managed_disk_type_name2
-#   storage_account_type = var.storage_account_type 
-#   AppId                    = var.AppId
-#   DataClassification       = var.DataClassification
-#   Role                     = var.Role
-#   SupportGroup             = var.SupportGroup
-#   environment              = var.environment
-#   rgvm                    = var.rgvm
-#  }
-  
+
+module "application-ctrm" {
+  source     = "./modules/VirtualMachine"
+  depends_on = [module.application-rg, module.application-vnet]
+
+  # Loose coupling: VM NICs go in the app subnet, from the VNet output
+  vmnicsub_id = module.application-vnet.subnet_ids["app"]
+
+  virtual_machines              = var.virtual_machines
+  location                      = var.location
+  rgvm                          = var.rgvm
+  vm_size                       = var.vm_size
+  private_ip_address_allocation = var.private_ip_address_allocation
+
+  publisher = var.publisher
+  offer     = var.offer
+  sku       = var.sku
+  version1  = var.version1
+
+  caching              = var.caching
+  managed_disk_type    = var.managed_disk_type
+  storage_account_type = var.storage_account_type
+
+  # Key Vault secret lookup for the VM admin password
+  keyvault_name        = var.key_vault_name
+  keyvault_rg          = var.rgkv
+  vm_admin_secret_name = var.vm_admin_secret_name
+
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+  environment        = var.environment
+}
   
 #  module "application-Appservice" {
 #   source                   = "./modules/Azureappservice"
@@ -130,6 +121,7 @@ module "application-appinsights" {
   SupportGroup                 = var.SupportGroup
   environment                  = var.environment
 }
+
 module "application-storage" {
   source           = "./modules/StorageAccount"
   depends_on       = [module.application-rg, module.application-vnet]
