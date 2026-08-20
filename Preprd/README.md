@@ -119,7 +119,7 @@ Each module folder follows the standard convention: `main.tf` (resources), `vari
 | Resource groups | `Resourcegroup` | Creates the 7 pre-prod resource groups from a list | — | **Active** |
 | Databricks | `azure-databricks-workspace` | Azure Databricks workspace (premium SKU); NSGs & delegated subnets available | Resource groups | **Active** |
 | Virtual network | `Azurevnet` | Virtual network and subnets | Resource groups | **Active** |
-| Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) | Commented out |
+| Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) |  **Active**  |
 | App service | `Azureappservice` | App Service plan, web apps, and Azure SQL database | RGs, VNet (PE) | Commented out |
 | Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | **Active**  |
 | Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | Commented out |
