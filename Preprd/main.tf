@@ -9,16 +9,15 @@
    SupportGroup             = var.SupportGroup
  }
 
-//  module "application-vnet" {
-//    depends_on = [module.application-rg]
-//    source                   = "./modules/Azurevnet"
-//    vnet_name                = var.vnet_name
-//    rgvnet                   = var.rgvnet
-//    location                 = var.location 
-//    address_space_vnet1 = var.address_space_vnet1
-//    subnet_name1             = var.subnet_name1
-//    address_prefixes_sub1    = var.address_prefixes_sub1
-//   }
+module "application-vnet" {
+  source              = "./modules/Azurevnet"
+  depends_on          = [module.application-rg]
+  vnet_name           = var.vnet_name
+  rgvnet              = var.rgvnet
+  location            = var.location
+  address_space_vnet1 = var.address_space_vnet1
+  subnets             = var.subnets
+}
 
 #  module "application-ctrm" {
 #   source                   = "./modules/VirtualMachine"
@@ -99,21 +98,21 @@
 #  }
 
 
-#  module "application-appinsights" {
-#    source                   = "./modules/AppInsights"
-#    depends_on = [module.application-rg]
-#    loganalytics_workspace_appin = var.loganalytics_workspace_appin
-#    rgappin = var.rgappin
-#    location = var.location
-#    appinsights_name = var.appinsights_name
-#    sku_appin = var.sku_appin 
-#    application_type = var.application_type
-#    AppId                    = var.AppId
-#    DataClassification       = var.DataClassification
-#    Role                     = var.Role
-#    SupportGroup             = var.SupportGroup
-#    environment              = var.environment
-#  }
+module "application-appinsights" {
+  source                       = "./modules/AppInsights"
+  depends_on                   = [module.application-rg]
+  loganalytics_workspace_appin = var.loganalytics_workspace_appin
+  rgappin                      = var.rgappin
+  location                     = var.location
+  appinsights_name             = var.appinsights_name
+  sku_appin                    = var.sku_appin
+  application_type             = var.application_type
+  AppId                        = var.AppId
+  DataClassification           = var.DataClassification
+  Role                         = var.Role
+  SupportGroup                 = var.SupportGroup
+  environment                  = var.environment
+}
 
 
 #  module "application-storage" {
@@ -167,41 +166,20 @@ module "databricks-workspace" {
   SupportGroup             = var.SupportGroup
   environment              = var.environment
 }
-// module "application-Keyvault" {
-//   source                   = "./modules/Keyvault"
-//   depends_on = [module.application-rg]
-//   // depends_on = [module.application-vnet]
-//   key_vault_name = var.key_vault_name
-//   key_permissions = var.key_permissions
-//   secret_permissions = var.secret_permissions
-//   key_vault_end_point_name = var.key_vault_end_point_name
-//   location = var.location
-//   rgkv   = var.rgkv
-//   purge_protection_enabled = var.purge_protection_enabled #false
-//   kvsubnet_id = var.kvsubnet_id #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-//   environment              = var.environment
-//   AppId                    = var.AppId
-//   DataClassification       = var.DataClassification
-//   Role                     = var.Role
-//   SupportGroup             = var.SupportGroup
-//  }
 
-# module "application-datafactory" {
-#    depends_on = [module.application-rg]
-#   //  depends_on = [module.application-vnet]
-#    source                   = "./modules/Datafactory"
-#    datafactory_name = var.datafactory_name
-#    rgdfac = var.rgdfac
-#    dfacsubnet_id = var.dfacsubnet_id
-#    location                 = var.location 
-#    datafactory_endpointname = var.datafactory_endpointname
-#    environment              = var.environment
-#    AppId                    = var.AppId
-#    DataClassification       = var.DataClassification
-#    Role                     = var.Role
-#    SupportGroup             = var.SupportGroup
-#  }
-
+module "application-Keyvault" {
+  source                   = "./modules/Keyvault"
+  depends_on               = [module.application-rg]
+  key_vault_name           = var.key_vault_name
+  location                 = var.location
+  rgkv                     = var.rgkv
+  purge_protection_enabled = var.purge_protection_enabled
+  environment              = var.environment
+  AppId                    = var.AppId
+  DataClassification       = var.DataClassification
+  Role                     = var.Role
+  SupportGroup             = var.SupportGroup
+}
 #  module "application-AzureSynapseAnalytics" {
 #   source                   = "./modules/AzureSynapseAnalytics"
 #   depends_on = [module.application-rg]

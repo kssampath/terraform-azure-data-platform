@@ -132,11 +132,11 @@ dfacsubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGro
 #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
 
 #AppInsights Values
-loganalytics_workspace_appin = "workspace-test"
-rgappin = "rg-ads-eus2-edh-preprd-appin-001"
-appinsights_name = "appin-ads-eus2-edh-preprd-001"
-sku_appin = "PerGB2018"
-application_type = "web"
+loganalytics_workspace_appin = "log-ads-eus2-edhpreprd-001"
+rgappin                      = "rg-ads-eus2-edh-preprd-appin-005"
+appinsights_name             = "appin-ads-eus2-edhpreprd-001"
+sku_appin                    = "PerGB2018"
+application_type             = "web"
 
 #Synapse Alaytics Values
 rgsyn = "rg-ads-eus2-edh-preprd-syn-001"

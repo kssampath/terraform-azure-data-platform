@@ -1,4 +1,11 @@
-#create App_Service_plan
+
+terraform { 
+  required_providers { 
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
+    } 
+  } 
+}
+// Create the app service plan
 resource "azurerm_app_service_plan" "serviceplan" {
   name                = var.appServPlanName #"appsvc-ads-eus2-edhpreprd-dev-001"
   location            = var.location

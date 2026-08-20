@@ -5,12 +5,21 @@ variable "loganalytics_workspace_appin" {
 }
 
 variable "location" {
-  // default = "eastus2"
+  type        = string
+  description = "Azure region"
+  default = "eastus2"
 }
 
 variable "rgappin" {
-  description = "Resource group name"
-  // default = "rg-ads-eus2-pioneer-inn-armtotf"
+  type        = string
+  description = "Resource group name for App Insights"
+  default = "rg-ads-eus2-pioneer-inn-armtotf"
+}
+
+variable "retention_in_days" {
+  type        = number
+  description = "Log Analytics data retention in days"
+  default     = 30
 }
 
 variable "sku_appin" {

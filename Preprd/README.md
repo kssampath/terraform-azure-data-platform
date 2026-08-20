@@ -428,6 +428,7 @@ older `enable_rbac_authorization` is deprecated in 4.x and removed in 5.x) and g
 data-plane access via scoped `azurerm_role_assignment` resources using standard roles
 (e.g. Key Vault Administrator). This unifies vault access with Azure's IAM model and
 supports scope inheritance.
+
 ### Secrets handling
 
 **Before:** VM and Synapse admin passwords stored in plaintext in `demo.auto.tfvars`,
@@ -454,6 +455,18 @@ and the Key Vault module exposes its vault ID. The root wires modules together b
 referencing these outputs, so no module hardcodes another's internals. The Key Vault
 module's private endpoint was decoupled entirely — it will be added downstream once
 the VNet is available, keeping the vault module independently deployable.
+
+### App Insights: connection string over instrumentation key
+
+**Before:** The module output the Application Insights `instrumentation_key` and
+hardcoded a 30-day retention.
+
+**After:** Switched the output to `connection_string` (the instrumentation key is
+legacy; Microsoft now recommends connection-string-based telemetry) and marked it
+`sensitive`. Made retention configurable via a typed variable, and added type
+constraints to the remaining variables. The workspace-linked App Insights pattern
+(via `workspace_id`) was already current and retained.
+
 
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames

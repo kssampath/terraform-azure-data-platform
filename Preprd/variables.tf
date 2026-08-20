@@ -16,28 +16,48 @@ variable "location" {
   #default = "eastus2"
 }
 
-// variable "subnet_name1" {
-//   type = string
-//   description = "The subnet name of subnet of storage account"
-//   #default = "sn-ads-eus2-analytics-edhpreprd-pep-001"
-// }
+# Variables of Vnet and subnets
+variable "vnet_name" {
+  type        = string
+  description = "Name of the virtual network"
+  default = "vnet-ads-eus2-analytics-int-edhpreprd-004"
+}
 
-// variable "vnet_name" {
-//   type = string
-//   description = "The vnet name"
-//   #default = "vnet-ads-eus2-analytics-int-edhpreprd-004"
-// }
+variable "rgvnet" {
+  type        = string
+  description = "Resource group for the virtual network"
+}
 
-// variable "address_prefixes_sub1" {
-//   type = string
-//   description = "The address_prefix of subnet of storage "
-//   #default = "10.40.52.0/26"
-// }
-// variable "address_space_vnet1" {
-//   type = list
-//   description = "The address_prefix of Vnet"
-  
-// }
+variable "address_space_vnet1" {
+  type        = list(string)
+  description = "Address space for the virtual network"
+  default = ["10.40.52.0/26"]
+}
+
+variable "subnets" {
+  type = map(object({
+    name                              = string
+    address_prefixes                  = list(string)
+    private_endpoint_network_policies = string
+  }))
+  description = "Subnets to create in the VNet, keyed by logical name"
+}
+
+variable "key_vault_name" {
+  type        = string
+  description = "Name of the Key Vault"
+}
+
+variable "rgkv" {
+  type        = string
+  description = "Resource group for the Key Vault"
+}
+
+variable "purge_protection_enabled" {
+  type        = bool
+  description = "Whether purge protection is enabled on the Key Vault"
+  default     = false
+}
 
 # variable "storage_rg" {
 #   type = string
@@ -360,34 +380,30 @@ variable "SupportGroup" {
 
 
 #AppInsights name
-# variable "loganalytics_workspace_appin" {
-#   type = string
-#   description = "The loganalytics workspace name"
-#   // default = "workspace-test" 
-# }
+variable "loganalytics_workspace_appin" {
+  type        = string
+  description = "Log Analytics workspace name for App Insights"
+}
 
-# variable "rgappin" {
-#   description = "Resource group name"
-#   // default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+variable "rgappin" {
+  type        = string
+  description = "Resource group for App Insights"
+}
 
-# variable "sku_appin" {
-#   type = string
-#   description = "The sku"
-#   // default = "PerGB2018"
-# }
+variable "appinsights_name" {
+  type        = string
+  description = "Application Insights instance name"
+}
 
-# variable "appinsights_name" {
-#   type = string
-#   description = "The appinsights name"
-#   // default = "appin-ads-eus2-edhpreprd-dev-001"
-# }
+variable "sku_appin" {
+  type        = string
+  description = "Log Analytics SKU"
+}
 
-# variable "application_type" {
-#   type = string
-#   description = "The application type"
-#   // default = "web"
-# }
+variable "application_type" {
+  type        = string
+  description = "Application Insights application type (e.g. web)"
+}
 
  #Azure Synapse Analytics
 # variable "rgsyn" {
