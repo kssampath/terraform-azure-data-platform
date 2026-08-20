@@ -71,41 +71,42 @@ module "application-ctrm" {
   environment        = var.environment
 }
   
-#  module "application-Appservice" {
-#   source                   = "./modules/Azureappservice"
-#   depends_on = [module.application-rg]
-  // depends_on = [module.application-vnet]
-  # appServPlanName = var.appServPlanName
-  # rgappser = var.rgappser
-  # kind = var.kind 
-  # appServPlanSKU = var.appServPlanSKU 
-  # appServPlanTier = var.appServPlanTier
-  # appServiceName1 = var.appServiceName1
-  # appServiceName2 = var.appServiceName2
-  # appser_sql_server_name = var.appser_sql_server_name
-  # sql_server_version_appser = var.sql_server_version_appser
-  # administrator_login_appser = var.administrator_login_appser
-  # appsersqldb_name  = var.appsersqldb_name #"sdb-ads-eus2-edhpreprd-dev-002"
-  # sql_storage_appser = var.sql_storage_appser #"P1"
-  # sql_redundancy_appser =  var.sql_redundancy_appser #true
-  # appser_sqldb1 = var.appser_sqldb1 #"sdb-ads-eus2-edhpreprd-dev-002"
-  # appser_endpoint = var.appser_endpoint # "pep-acs26X0011"
-  # appsersubnet_id = var.appsersubnet_id #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-#   linux_fx_version         = var.linux_fx_version #"NODE|12-lts"
-#   ftps_state               = var.ftps_state #"Disabled"
-#   http2_enabled            = var.http2_enabled #false
-#   php_version              = var.php_version #"7.4"          
-#   python_version           = var.python_version #"3.4"          
-#   dotnet_framework_version = var.dotnet_framework_version #"v4.0"
-#   location = var.location
-#   environment = var.environment
-#   AppId                    = var.AppId
-#   DataClassification       = var.DataClassification
-#   Role                     = var.Role
-#   SupportGroup             = var.SupportGroup
-#  }
+module "application-Appservice" {
+  source     = "./modules/Azureappservice"
+  depends_on = [module.application-rg, module.application-vnet]
 
+  appServPlanName      = var.appServPlanName
+  app_service_sku_name = var.app_service_sku_name
+  app_services         = var.app_services
+  node_version         = var.node_version
+  ftps_state           = var.ftps_state
+  http2_enabled        = var.http2_enabled
 
+  rgappser                   = var.rgappser
+  appser_sql_server_name     = var.appser_sql_server_name
+  administrator_login_appser = var.administrator_login_appser
+  sql_server_version_appser  = var.sql_server_version_appser
+  sql_sku_appser             = var.sql_sku_appser
+  appsersqldb_name           = var.appsersqldb_name
+  appser_sqldb1              = var.appser_sqldb1
+  sql_redundancy_appser      = var.sql_redundancy_appser
+
+  # Loose coupling: SQL private endpoint subnet from the VNet output
+  appsersubnet_id = module.application-vnet.subnet_ids["pep"]
+  appser_endpoint = var.appser_endpoint
+
+  # SQL admin password from Key Vault (reuses the existing KV vars)
+  keyvault_name         = var.key_vault_name
+  keyvault_rg           = var.rgkv
+  sql_admin_secret_name = var.sql_admin_secret_name
+
+  location           = var.location
+  environment        = var.environment
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+}
 module "application-appinsights" {
   source                       = "./modules/AppInsights"
   depends_on                   = [module.application-rg]

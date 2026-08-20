@@ -393,103 +393,85 @@ variable "application_type" {
 # }
 
 #Azure App service values
+variable "appServPlanName" {
+  type        = string
+  description = "App Service Plan name"
+}
 
-# variable "linux_fx_version" {
-#   type = string
-# }
+variable "app_service_sku_name" {
+  type        = string
+  description = "App Service Plan SKU"
+}
 
-# variable "ftps_state" {
-#   type = string
-# } 
+variable "app_services" {
+  type        = map(string)
+  description = "Map of logical name to web app name"
+}
 
-# variable "http2_enabled" {
-  
-# } 
+variable "node_version" {
+  type        = string
+  description = "Node.js version for web apps"
+}
 
-# variable "php_version" {
-#   type = string
-# } 
+variable "ftps_state" {
+  type        = string
+  description = "FTPS state"
+}
 
-# variable "python_version" {
-#   type = string
-# } 
+variable "http2_enabled" {
+  type        = bool
+  description = "Whether HTTP/2 is enabled"
+}
 
-# variable "dotnet_framework_version" {
-#   type = string
-# }
+variable "rgappser" {
+  type        = string
+  description = "Resource group for App Service resources"
+}
 
-# variable "rgappser" {
-#   type = string
-# }
+variable "appser_sql_server_name" {
+  type        = string
+  description = "SQL server name"
+}
 
-# variable "appServPlanName" {
-#   description = "Name of the app service plan"
-# }
+variable "administrator_login_appser" {
+  type        = string
+  description = "SQL administrator login"
+}
 
-# variable "appServPlanTier" {
-#   description = "app service plan's tier"
-# }
+variable "sql_server_version_appser" {
+  type        = string
+  description = "SQL server version"
+}
 
-# variable "appServPlanSKU" {
-#   description = "app service plan's instance size"
-# }
+variable "sql_sku_appser" {
+  type        = string
+  description = "SQL database SKU"
+}
 
-# variable "kind" {
-#   description = "The kind of the App Service Plan to create. Possible values are Windows (also available as App), Linux, elastic (for Premium Consumption) and FunctionApp (for a Consumption Plan). Defaults to Windows. Changing this forces a new resource to be created."
-# }
+variable "appsersqldb_name" {
+  type        = string
+  description = "First SQL database name"
+}
 
-# variable "appser_sql_server_name" {
-#   type = string
-#   description = "The name of the database."
-# }
+variable "appser_sqldb1" {
+  type        = string
+  description = "Second SQL database name"
+}
 
-# variable "administrator_login_appser" {
-#   type = string
-#   description = "Specifies the name of the SQL administrator."
-# }
+variable "sql_redundancy_appser" {
+  type        = bool
+  description = "Whether the first database is zone redundant"
+}
 
-# variable "sql_server_version_appser" { 
-#   type = string
-#   description = "SQl Server version"
-# }
+variable "appser_endpoint" {
+  type        = string
+  description = "SQL private endpoint name"
+}
 
-# variable "sql_storage_appser"{
-#   type = string
-#   description = "Appsevice Sql Storage Name"
-# }
-
-# variable "appsersqldb_name"{
-#   type = string
-#   description = "Appsevice Sql Database Name"
-# }
-
-# variable "appser_sqldb1" {
-#     type = string
-#     description = "Appsevice Sql Database Name"
-# }
-
-# variable "sql_redundancy_appser" {
-#   description = "Sql redundancy_appser"
-# }
-
-#Variables for azurerm_app_service
-# variable "appServiceName1" {
-#   type = string
-#   description = "Name of the app service 1"
-# }
-
-# variable "appServiceName2" {
-#   type = string
-#   description = "Name of the app service 2"
-# }
-# variable "appsersubnet_id" {
-#   type = string
-# }
-
-# variable "appser_endpoint" {
-#   type = string
-# }
-
+variable "sql_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name for the SQL admin password"
+}
 
 # Databrciks variables
 // variable "dbrlogworkspace-name" {

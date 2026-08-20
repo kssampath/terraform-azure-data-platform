@@ -518,6 +518,23 @@ Migrated 4.x disk args (`zone` string, numeric `disk_size_gb`/`lun`) and removed
 the pile of now-unused per-VM variables absorbed by the map.
 
 
+### App Service (+ SQL): full 4.x resource rewrites + Key Vault secret
+
+**Before:** Used four deprecated/removed resources — `azurerm_app_service_plan`
+(with `sku{}`/`kind`/`reserved`), two `azurerm_app_service` blocks (with a
+`site_config` that set php/python/dotnet/linux_fx versions simultaneously),
+`azurerm_sql_server` (with a hardcoded plaintext admin password), and
+`azurerm_sql_database` (using `requested_service_objective_name`/`server_name`).
+
+**After:** Migrated to the current resources: `azurerm_service_plan` (flat
+`os_type`/`sku_name`), `azurerm_linux_web_app` with runtime set via a single
+`application_stack` block (the old multi-runtime config was invalid), and
+`azurerm_mssql_server` / `azurerm_mssql_database` (using `server_id` and `sku_name`).
+Collapsed the two web apps into one `for_each`. Renamed 4.x arguments
+(`client_certificate_enabled`). The SQL admin password is now read from Key Vault via
+a data source — the hardcoded credential was removed entirely. SQL private endpoint
+subnet comes from the VNet output.
+
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames
   resolve to private IPs automatically.

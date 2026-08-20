@@ -152,33 +152,27 @@ sqldw_name = "syn-ads-eus2-edhpreprd-dev-001"
 sqlser_endpoint = "pep-ACS06X010"
 
 #Azure App service
-appServPlanName = "appsvcpl-ads-eus2-edh-preprd-001"
-kind = "linux"
-appServPlanSKU = "PremiumV3"
-appServPlanTier = "P1v3"
-appServiceName1 = "appsvc-ads-eus2-edh-preprd-001"
-appServiceName2 = "appsvc-ads-eus2-edh-preprd-002"
-rgappser = "rg-ads-eus2-edh-preprd-appsvc-001"
-linux_fx_version = "NODE|12-lts"
-ftps_state = "Disabled"
-http2_enabled = false
-php_version = "7.4"   
-python_version = "3.4"   
-dotnet_framework_version = "v4.0"
-appser_sql_server_name = "acs6x007"
-sql_server_version_appser = "12.0"
-administrator_login_appser ="adsmetasqladmin"
-appsersqldb_name = "sdb-ads-eus2-edh-preprd-001"
-sql_storage_appser = "P1"
-sql_redundancy_appser = true
-appser_sqldb1 = "sdb-ads-eus2-edh-preprd-002"
-appser_endpoint =  "pep-acs6x007"
-appser_endpoint1 = "pep-appsvc-ads-eus2-edh-preprd-001"
-appser_endpoint2 = "pep-appsvc-ads-eus2-edh-preprd-002"
-appsersubnet_id = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-#"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+appServPlanName      = "asp-ads-eus2-edhpreprd-001"
+app_service_sku_name = "P1v3"
+node_version         = "20-lts"
+ftps_state           = "Disabled"
+http2_enabled        = false
 
+app_services = {
+  app1 = "app-ads-eus2-edhpreprd-001"
+  app2 = "app-ads-eus2-edhpreprd-002"
+}
 
+rgappser                   = "rg-ads-eus2-edh-preprd-appsvc-005"
+appser_sql_server_name     = "sql-ads-eus2-edhpreprd-001"
+administrator_login_appser = "sqladmin"
+sql_server_version_appser  = "12.0"
+sql_sku_appser             = "P1"
+appsersqldb_name           = "sdb-ads-eus2-edhpreprd-001"
+appser_sqldb1              = "sdb-ads-eus2-edhpreprd-002"
+sql_redundancy_appser      = true
+appser_endpoint            = "pep-sql-ads-eus2-edhpreprd-001"
+sql_admin_secret_name      = "sql-admin-password"
 #databricks Variables
 databricksworkspace_name = "dbx-ads-eus2-edh-preprd-003"
 dbrlogworkspace-name  = "law-ads-eus2-core-edhpreprd-001"
