@@ -495,9 +495,10 @@ any change means hand-editing paths in multiple places.
 
 **After:** The VNet module exposes a `subnet_ids` output (a map of logical name → ID)
 and the Key Vault module exposes its vault ID. The root wires modules together by
-referencing these outputs, so no module hardcodes another's internals. The Key Vault
-module's private endpoint was decoupled entirely — it will be added downstream once
-the VNet is available, keeping the vault module independently deployable.
+referencing these outputs, so no module hardcodes another's internals. 
+The Key Vault module's private endpoint was initially decoupled to keep the vault
+independently deployable, then wired back once the VNet was available, consuming
+`module.application-vnet.subnet_ids["pep"]` like the other private endpoints.
 
 ### App Insights: connection string over instrumentation key
 
