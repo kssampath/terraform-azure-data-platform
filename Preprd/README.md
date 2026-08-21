@@ -2,7 +2,7 @@
 
 Terraform configuration that provisions the Azure infrastructure for the **Enterprise Data Hub (EDH)** **pre-prod** environment in the **East US 2** region. The stack is organised as a single root configuration that composes a set of reusable child modules, one per Azure service.
 
-> **Heads-up on repo state:** In the committed `main.tf`, only the **Resource Group** and **Databricks Workspace** modules are active. The other modules (VNet, Virtual Machine, App Service, App Insights, Storage, Key Vault, Data Factory, Synapse) are fully written but **commented out** — enable them by uncommenting the module block and the corresponding variables. This README documents the **complete intended architecture** (all modules), with the current status noted per module.
+> This stack has been modernised to **Terraform 1.x** and the **azurerm 4.x** provider. All modules are active. See the [Modernisation](#modernisation) section for the full before → after of what changed.
 
 ---
 
@@ -85,31 +85,29 @@ flowchart TD
 ---
 
 ## Repository layout
-
 ```
 Preprd/
-├── main.tf                 # Root module — composes all child modules
-├── variables.tf            # Root input variable declarations
-├── output.tf               # Root outputs (Databricks outputs, currently commented)
-├── provider.tf             # azurerm provider configuration
-├── demo.auto.tfvars        # Variable values (auto-loaded)
-├── terraform.tfstate       # State file (see Security note)
-├── terraform.tfstate.backup
+├── main.tf # Root module — composes all child modules
+├── variables.tf # Root input variable declarations
+├── output.tf # Root outputs
+├── provider.tf # azurerm provider + required_providers
+├── backend.tf # Remote state backend (azurerm) configuration
+├── demo.auto.tfvars # Variable values (auto-loaded)
+├── .gitignore # Excludes state, .terraform/, .venv/
 └── modules/
-    ├── Resourcegroup/            # Resource groups
-    ├── Azurevnet/               # Virtual network + subnets
-    ├── VirtualMachine/          # CTRM Linux VMs
-    ├── Azureappservice/         # App Service plan, apps, SQL
-    ├── azure-databricks-workspace/  # Databricks workspace
-    ├── StorageAccount/          # ADLS Gen2 + private endpoints
-    ├── Keyvault/                # Key Vault
-    ├── Datafactory/             # Azure Data Factory
-    ├── AzureSynapseAnalytics/   # Synapse SQL pool / DW
-    └── AppInsights/             # App Insights + Log Analytics
+    ├── Resourcegroup/ # Resource groups (for_each)
+    ├── Azurevnet/ # VNet, subnets, NSGs, delegations
+    ├── VirtualMachine/ # CTRM Linux VMs (for_each) + KV secret
+    ├── Azureappservice/ # App Service + SQL (mssql) + KV secret
+    ├── azure-databricks-workspace/ # Databricks (VNet-injected)
+    ├── StorageAccount/ # ADLS Gen2 + private endpoints (for_each)
+    ├── Keyvault/ # Key Vault (RBAC)
+    ├── Datafactory/ # Data Factory + managed identity + PE
+    ├── AzureSynapseAnalytics/ # Synapse SQL (mssql) + KV secret + PE
+    └── AppInsights/ # App Insights + Log Analytics
+
 ```
-
-Each module folder follows the standard convention: `main.tf` (resources), `variable.tf` / `variables.tf` (inputs), and `output.tf` / `outputs.tf` (outputs) where applicable.
-
+Each module contains `main.tf`, `variables.tf`, and `outputs.tf`; modules that read secrets also have a `data.tf`.
 ---
 
 ## Modules
@@ -117,14 +115,14 @@ Each module folder follows the standard convention: `main.tf` (resources), `vari
 | Module | Directory | Provisions | Depends on | Status |
 |---|---|---|---|---|
 | Resource groups | `Resourcegroup` | Creates the 7 pre-prod resource groups from a list | — | **Active** |
-| Databricks | `azure-databricks-workspace` | Azure Databricks workspace (premium SKU); NSGs & delegated subnets available | Resource groups | **Active** |
+| Databricks | `azure-databricks-workspace` | Azure Databricks workspace (premium SKU), VNet-injected with NSGs & delegated subnets | Resource groups | **Active** |
 | Virtual network | `Azurevnet` | Virtual network and subnets | Resource groups | **Active** |
 | Virtual machine | `VirtualMachine` | CTRM Linux VMs (RHEL), NICs, OS & data disks | RGs, VNet (app subnet) |  **Active**  |
 | App service | `Azureappservice` | App Service plan, web apps, and Azure SQL database | RGs, VNet (PE) | **Active** |
 | Storage | `StorageAccount` | ADLS Gen2 account with private endpoints (blob, dfs, file, queue, table) | RGs, VNet (PE) | **Active**  |
 | Data factory | `Datafactory` | Azure Data Factory with private endpoint | RGs, VNet (PE) | **Active** |
-| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) | **Active**   |
-| Key vault | `Keyvault` | Key Vault with access policies and private endpoint | RGs, VNet (PE) | **Active** |
+| Synapse | `AzureSynapseAnalytics` | Synapse SQL server + data warehouse / SQL pool + PE | RGs, VNet (PE) |**Active**   |
+| Key vault | `Keyvault` | Key Vault (RBAC) with private endpoint | RGs, VNet (PE) | **Active** |
 | App insights | `AppInsights` | Application Insights + Log Analytics workspace | Resource groups | **Active**  |
 
 ### Resource groups created
@@ -142,30 +140,27 @@ Defined as a list in `demo.auto.tfvars`:
 | `rg-ads-eus2-edh-preprd-syn-005` | Synapse Analytics |
 
 ---
-
 ## Prerequisites
 
-- **Terraform** `>= 0.12` (root modules declare `required_version = ">= 0.12"`)
-- **AzureRM provider** `>= 2.0.0`
+- **Terraform** `>= 1.0` (declared in the root `terraform` block)
+- **AzureRM provider** `~> 4.0`
 - **Azure CLI** authenticated to the target subscription, or a service principal
-- Permissions to create resource groups and the above services in the subscription
-- A user/service principal with rights to create **private endpoints** and manage **Key Vault access policies** (when those modules are enabled)
+- Permissions to create resource groups and the services below, including **private endpoints**, **subnet delegation**, and **Key Vault RBAC role assignments**
+- An existing **Azure Key Vault** containing the SQL/VM admin secrets referenced by the VM, App Service, and Synapse modules (read at runtime via data sources)
+- A **remote state backend** (Azure Storage account) if using the `backend.tf` configuration — see [State management](#state-management)
 
 ### Authentication
-
-Authenticate with the Azure CLI before running Terraform:
 
 ```bash
 az login
 az account set --subscription "<your-subscription-id>"
 ```
 
-The provider is configured with `skip_provider_registration = true`, so ensure the required resource providers (e.g. `Microsoft.Databricks`, `Microsoft.Storage`, `Microsoft.Synapse`) are already registered on the subscription.
-
+Ensure the required resource providers (e.g. `Microsoft.Databricks`, `Microsoft.Storage`, `Microsoft.Synapse`, `Microsoft.Sql`) are registered on the subscription.
 ---
 
 ## Getting started
-
+- Note: the VM/App Service/Synapse modules read secrets from an existing Key Vault via data sources — those secrets must exist before apply
 ```bash
 # 1. Move into the environment directory
 cd Preprd
@@ -186,16 +181,6 @@ Variable values are supplied automatically because the file is named `demo.auto.
 terraform plan  -var-file="demo.auto.tfvars"
 terraform apply -var-file="demo.auto.tfvars"
 ```
-
-### Enabling additional modules
-
-To turn on a module that is currently commented out:
-
-1. Uncomment its `module "..." { ... }` block in `main.tf`.
-2. Uncomment the matching variable declarations in `variables.tf`.
-3. Confirm the values exist in `demo.auto.tfvars`.
-4. Run `terraform plan` to validate before applying.
-
 ---
 
 ## Configuration
@@ -215,7 +200,7 @@ Key root input variables (`variables.tf`):
 | `sku_premium` | `string` | Databricks SKU (e.g. `premium`) |
 | `rgdbr` | `string` | Resource group for Databricks |
 
-Additional variables for the other modules (VM, App Service, Storage, Key Vault, Data Factory, Synapse) are declared but commented out; uncomment as you enable each module.
+All modules are active; their variables are declared in the root `variables.tf` and supplied via `demo.auto.tfvars`. Complex inputs use typed maps — e.g. `subnets`, `virtual_machines`, `app_services`, and `storage_private_endpoints` are `map(object)` / `map(string)` structures.
 
 ---
 
@@ -269,20 +254,33 @@ flowchart TD
 ```
 
 ---
-
 ## Outputs
 
-Root outputs are defined in `output.tf` but currently commented out. When enabled, the Databricks module exposes:
+Each module exposes outputs so the root can wire modules together without hardcoding
+resource IDs — this is the basis of the loose-coupling design. Key module outputs:
 
-| Output | Description |
-|---|---|
-| `workspace_name` | Name of the Databricks workspace |
-| `workspace_id` | ID of the Databricks workspace |
-| `security_group_private_name` / `_id` | NSG assigned to the private subnet |
-| `security_group_public_name` / `_id` | NSG assigned to the public subnet |
+| Module | Output | Used for |
+|---|---|---|
+| VNet | `vnet_id` | Databricks VNet injection |
+| VNet | `subnet_ids` | Private endpoints and NIC placement (map of name → ID) |
+| VNet | `subnet_names` | Databricks `custom_parameters` (map of key → name) |
+| VNet | `nsg_association_ids` | Databricks injection (proves NSG associations exist) |
+| Key Vault | `key_vault_id` | Downstream references |
+| Storage | `storage_account_id`, `private_endpoint_ids` | Consumers of the storage account |
+| Data Factory | `data_factory_id` | Downstream references |
+| App Service | `app_service_ids`, `sql_server_id` | Downstream references |
+| Synapse | `sql_server_id`, `sql_dw_id` | Downstream references |
+| App Insights | `connection_string` (sensitive), `app_id` | App telemetry configuration |
+| Databricks | `workspace_id`, `workspace_name` | Downstream references |
 
-Uncomment the relevant `output` blocks (and ensure the module actually exports those values) to surface them after `apply`.
+The root `output.tf` surfaces selected values after `apply` (e.g. the Databricks
+workspace name and ID). Sensitive outputs such as the App Insights connection string
+are marked `sensitive = true` so they are not printed in plan/apply output.
 
+How loose coupling uses these: for example, the Data Factory module's private endpoint
+subnet is wired as `module.application-vnet.subnet_ids["pep"]`, and Databricks consumes
+`module.application-vnet.nsg_association_ids["databricks_public"]` — so no module
+hardcodes another's resource paths.
 ---
 
 ## Operational notes
@@ -299,17 +297,22 @@ python docs/architecture.py      # -> docs/preprd_architecture.png
 
 ### State management
 
-State is currently stored locally (`terraform.tfstate`). For team use, migrate to a remote backend (e.g. an Azure Storage account) so state is shared, locked, and versioned. Add a `backend "azurerm" { ... }` block to the Terraform configuration and run `terraform init -migrate-state`.
+State is configured for a remote azurerm backend (see backend.tf). Provision the backend storage account, then run terraform init to initialise it.
 
 ---
 
 ## Security
 
-> **Action required.** The following issues exist in the current repository and should be addressed:
+Security practices applied in this configuration:
 
-- **Plaintext credentials in `demo.auto.tfvars`.** VM admin passwords and the Synapse SQL login/password are committed in cleartext. Treat them as compromised, rotate them, and move secrets to **Key Vault** or environment variables (`TF_VAR_*`) instead of committing them.
-- **State files are committed.** `terraform.tfstate` and its backup are in version control. State can contain secrets and resource identifiers — remove them from the repo, add them to `.gitignore`, and use a remote backend.
-- **Least privilege.** Scope the deploying identity to only the permissions required for these resource groups.
+- **No secrets in code or state.** SQL and VM admin passwords are read at runtime from Azure Key Vault via `data` sources — no credential appears in `.tf` files or `demo.auto.tfvars`. (Sample credentials previously committed in the original repo have been rotated.)
+- **Key Vault uses RBAC.** The vault is configured with `rbac_authorization_enabled`, granting access via scoped `azurerm_role_assignment` roles rather than the legacy access-policy model.
+- **State is not committed.** `terraform.tfstate` files are excluded via `.gitignore`; a remote `azurerm` backend (Azure Storage) provides shared, locked, versioned state.
+- **Storage is private by default.** The ADLS Gen2 account uses `network_rules { default_action = "Deny" }` with `bypass = ["AzureServices"]`, reachable only through its private endpoints.
+- **Private endpoints throughout.** Storage, Data Factory, Synapse, App Service SQL, and Key Vault are reachable privately via endpoints in the PEP subnet rather than public internet.
+- **Managed identities.** Data Factory uses a system-assigned managed identity for credential-free authentication to other services.
+
+> **Note on git history:** secrets that were committed in the original repository remain in past commits. For a real deployment, rotate any exposed credentials and consider history-rewriting tools (e.g. `git filter-repo`) if the repo was ever public.
 
 ### Databricks VNet injection
 
@@ -379,8 +382,8 @@ crash.log
 |---|---|
 | `Error: subscription is not registered to use namespace 'Microsoft.X'` | Provider registration is skipped — register the provider manually: `az provider register --namespace Microsoft.X` |
 | Private endpoint creation fails | Ensure the PEP subnet exists and the deploying identity can create private endpoints; enable the `Azurevnet` module first |
-| Databricks apply fails on subnet delegation | Uncomment and configure the NSG + delegated subnet blocks in the Databricks module |
-| Variable "not declared" errors after enabling a module | Uncomment the matching variable declarations in `variables.tf` |
+| Databricks apply fails on subnet delegation | Ensure the delegated subnets and their NSG associations exist before the workspace applies (the module consumes nsg_association_ids) |
+| Variable "not declared" errors after enabling a module | Ensure the variable is declared in both the root and module variables.tf and has a value in tfvars. |
 | Diagram script fails with `dot: command not found` | Install Graphviz (`brew install graphviz` / `apt-get install graphviz`) |
 
 ---
@@ -403,16 +406,6 @@ constraint (`azurerm = "~> 4.0"`, i.e. >= 4.0 and < 5.0), and set
 `required_version = ">= 1.0"`. This guarantees reproducible, non-breaking upgrades.
 The provider block is now minimal (`features {}`), dropping redundant settings.
 
-### State management
-
-**Before:** State stored locally in `terraform.tfstate` and committed to the repo.
-
-**Problem:** Local state can't be shared across a team, offers no locking (risking
-corruption on concurrent applies), and can contain secrets.
-
-**After:** Removed state files from version control (`.gitignore`) and added an
-`azurerm` remote backend configuration (Azure Storage) with per-environment state
-keys. Azure Blob provides automatic state locking.
 
 ### Remote state backend
 
@@ -528,7 +521,7 @@ hardcoded 200-character subnet path via `dfacsubnet_id`.
 IDs — none hardcoded) so the factory can authenticate to other services without stored
 credentials, and added governance tags to the factory itself. The private endpoint's
 subnet ID now comes from the VNet module's `subnet_ids["pep"]` output rather than a
-hardcoded path — the first consumer of the loose-coupling
+hardcoded path — the first consumer of the loose-coupling pattern.
 
 ### Storage (ADLS Gen2): DRY private endpoints + security hardening
 
@@ -600,8 +593,9 @@ subnet comes from the VNet output.
 ### Known future improvements
 - Add a private DNS zone (`privatelink.*`) alongside each private endpoint so hostnames
   resolve to private IPs automatically.
-- Continue migrating the remaining modules (VM, App Service, Storage, Data Factory,
-  Synapse) from 2.x resource types to their 4.x equivalents.
+- Add outputs to the Resource Group module (a map of name → ID) and have consumer
+  modules reference them, so every module's resource group is guaranteed to be one
+  this stack creates rather than an independently-supplied name.
 ## License
 
 Add your license here (e.g. MIT). No license file is currently present in the repository.
