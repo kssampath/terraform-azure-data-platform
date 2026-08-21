@@ -54,7 +54,7 @@ subnet_nsg_associations = {
 key_vault_name           = "kv-ads-eus2-edhpreprd-001"
 rgkv                     = "rg-ads-eus2-edh-preprd-dbx-005"
 purge_protection_enabled = false
-
+key_vault_end_point_name = "pep-kv-ads-eus2-edhpreprd-001"
 # Storage Variables
 storage-name     = "dls2adseus2edhpreprd001"
 storage_rg       = "rg-ads-eus2-edh-preprd-dls2-005"

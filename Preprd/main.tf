@@ -183,10 +183,12 @@ module "databricks-workspace" {
 }
 module "application-Keyvault" {
   source                   = "./modules/Keyvault"
-  depends_on               = [module.application-rg]
+  depends_on               = [module.application-rg, module.application-vnet]
   key_vault_name           = var.key_vault_name
   location                 = var.location
   rgkv                     = var.rgkv
+  key_vault_end_point_name = var.key_vault_end_point_name
+  kvsubnet_id              = module.application-vnet.subnet_ids["pep"]
   purge_protection_enabled = var.purge_protection_enabled
   environment              = var.environment
   AppId                    = var.AppId

@@ -105,7 +105,10 @@ variable "purge_protection_enabled" {
   description = "Whether purge protection is enabled on the Key Vault"
   default     = false
 }
-
+variable "key_vault_end_point_name" {
+  type        = string
+  description = "Name of the Key Vault private endpoint"
+}
 # variable "storage_rg" {
 #   type = string
 #   description = "Resource group name of Storage_account"

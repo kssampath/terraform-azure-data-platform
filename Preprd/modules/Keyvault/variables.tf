@@ -48,4 +48,12 @@ variable "SupportGroup" {
 # }
 # variable "secret_permissions" {
 # }
+variable "key_vault_end_point_name" {
+  type        = string
+  description = "Name of the Key Vault private endpoint"
+}
 
+variable "kvsubnet_id" {
+  type        = string
+  description = "Subnet ID for the Key Vault private endpoint (from the VNet output)"
+}
