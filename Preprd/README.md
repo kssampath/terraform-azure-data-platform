@@ -597,6 +597,10 @@ subnet comes from the VNet output.
 - Add outputs to the Resource Group module (a map of name → ID) and have consumer
   modules reference them, so every module's resource group is guaranteed to be one
   this stack creates rather than an independently-supplied name.
+- Update the architecture diagram (`docs/architecture.py`) to show the Databricks
+  public/private subnet pair, their NSGs, and subnet delegation. The current PNG is a
+  service-level overview; the network detail lives in the [Networking model](#networking-model)
+  section for now.
 ## License
 
 Add your license here (e.g. MIT). No license file is currently present in the repository.
