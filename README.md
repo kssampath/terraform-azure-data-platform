@@ -89,5 +89,4 @@ See the [Preprd README](./Preprd/README.md#security) for environment-specific se
 ---
 
 ## License
-
-Add your license here (e.g. MIT). No license file is currently present in the repository.
+No license is currently specified. All rights reserved.

@@ -607,4 +607,4 @@ subnet comes from the VNet output.
   section for now.
 ## License
 
-Add your license here (e.g. MIT). No license file is currently present in the repository.
+No license is currently specified. All rights reserved.
