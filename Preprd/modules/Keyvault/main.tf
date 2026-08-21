@@ -1,8 +1,8 @@
-terraform { 
-  required_providers { 
-    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
-    } 
-  } 
+terraform {
+  required_providers {
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0"
+    }
+  }
 }
 data "azurerm_client_config" "current" {}
 # enable_rbac_authorization = true defers all data-plane permissions to Azure RBAC,
@@ -28,7 +28,7 @@ resource "azurerm_key_vault" "key_vault" {
   #   key_permissions = var.key_permissions
   #   secret_permissions = var.secret_permissions
   # }
-   
+
 }
 
 # Grant the identity running Terraform admin rights over this vault's data plane,
@@ -48,14 +48,14 @@ resource "azurerm_role_assignment" "kv_admin" {
 #   location             = var.location
 #   resource_group_name  = "rg-ads-eus2-pioneer-inn-armtotf"
 #   subnet_id            = var.kvsubnet_id #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-  
+
 #   private_service_connection {
 #     name                           = azurerm_key_vault.key_vault.name
 #     is_manual_connection           = false
 #     private_connection_resource_id = azurerm_key_vault.key_vault.id
 #     subresource_names              = ["vault"]
 #   }
-  
+
 #   tags = {
 #     AppId = var.AppId 
 #     environment = var.environment

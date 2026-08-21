@@ -1,22 +1,31 @@
- module "application-rg" {
-   source = "./modules/Resourcegroup"
-   resource-group = var.resource-group
-   location = var.location
-   environment              = var.environment
-   AppId                    = var.AppId
-   DataClassification       = var.DataClassification
-   Role                     = var.Role
-   SupportGroup             = var.SupportGroup
- }
+module "application-rg" {
+  source             = "./modules/Resourcegroup"
+  resource-group     = var.resource-group
+  location           = var.location
+  environment        = var.environment
+  AppId              = var.AppId
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+}
 
 module "application-vnet" {
-  source              = "./modules/Azurevnet"
-  depends_on          = [module.application-rg]
-  vnet_name           = var.vnet_name
-  rgvnet              = var.rgvnet
-  location            = var.location
-  address_space_vnet1 = var.address_space_vnet1
-  subnets             = var.subnets
+  source                  = "./modules/Azurevnet"
+  depends_on              = [module.application-rg]
+  vnet_name               = var.vnet_name
+  rgvnet                  = var.rgvnet
+  location                = var.location
+  address_space_vnet1     = var.address_space_vnet1
+  subnets                 = var.subnets
+  network_security_groups = var.network_security_groups
+  subnet_nsg_associations = var.subnet_nsg_associations
+  tags = {
+    AppId              = var.AppId
+    environment        = var.environment
+    DataClassification = var.DataClassification
+    Role               = var.Role
+    SupportGroup       = var.SupportGroup
+  }
 }
 module "application-datafactory" {
   source                   = "./modules/Datafactory"
@@ -70,7 +79,7 @@ module "application-ctrm" {
   SupportGroup       = var.SupportGroup
   environment        = var.environment
 }
-  
+
 module "application-Appservice" {
   source     = "./modules/Azureappservice"
   depends_on = [module.application-rg, module.application-vnet]
@@ -145,34 +154,33 @@ module "application-storage" {
   environment        = var.environment
 }
 
-
 module "databricks-workspace" {
   source                      = "./modules/azure-databricks-workspace"
-  depends_on = [module.application-rg]
-  // depends_on = [module.application-vnet]
-  rgdbr        = var.rgdbr
-  databricks_managed_resource_group_name =  var.databricks_managed_resource_group_name
+  depends_on                  = [module.application-rg, module.application-vnet]
+  databricksworkspace_name    = var.databricksworkspace_name
+  rgdbr                       = var.rgdbr
   location                    = var.location
-  // dbrsku = var.dbrsku
-  // vnet_name = var.vnet_name
-  // rgvnet    = var.rgvnet
-  // vnet_id = var.vnet_id
-  // security_group_name_public_dbr  = var.security_group_name_public_dbr
-  // security_group_name_private_dbr = var.security_group_name_private_dbr
-  // private_subnet_name_dbr         = var.private_subnet_name_dbr
-  // public_subnet_name_dbr          = var.public_subnet_name_dbr
-  // dbrlogworkspace-name              = var.dbrlogworkspace-name
-  databricksworkspace_name  = var.databricksworkspace_name
-  sku_premium  = var.sku_premium
-  // public_address_prefix_dbr = var.public_address_prefix_dbr  #"10.40.52.0/26"
-  // private_address_prefix_dbr  = var.private_address_prefix_dbr  #"10.40.52.64/26"
-  AppId                    = var.AppId
-  DataClassification       = var.DataClassification
-  Role                     = var.Role
-  SupportGroup             = var.SupportGroup
-  environment              = var.environment
-}
+  sku_premium                 = var.sku_premium
+  managed_resource_group_name = var.managed_resource_group_name
 
+  dbrlogworkspace_name = var.dbrlogworkspace_name
+  dbrsku               = var.dbrsku
+
+  # VNet injection — consume the VNet module outputs (loose coupling)
+  vnet_id = module.application-vnet.vnet_id
+  # This two-subnet model is required for Databricks VNet injection — it's not optional
+  public_subnet_name_dbr            = module.application-vnet.subnet_names["databricks_public"]
+  private_subnet_name_dbr           = module.application-vnet.subnet_names["databricks_private"]
+  public_subnet_nsg_association_id  = module.application-vnet.nsg_association_ids["databricks_public"]
+  private_subnet_nsg_association_id = module.application-vnet.nsg_association_ids["databricks_private"]
+  # module.application-vnet.nsg_association_ids["databricks_public"] pulls the association ID straight from the VNet output
+  # Databricks requires the NSG association to exist before it injects, and referencing the output creates that dependency automatically — Terraform will build the subnet, NSG, and association first, then the workspace.
+  AppId              = var.AppId
+  environment        = var.environment
+  DataClassification = var.DataClassification
+  Role               = var.Role
+  SupportGroup       = var.SupportGroup
+}
 module "application-Keyvault" {
   source                   = "./modules/Keyvault"
   depends_on               = [module.application-rg]

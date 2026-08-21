@@ -1,15 +1,12 @@
-resource-group =     [ "rg-ads-eus2-edh-preprd-adf-005",
-                        "rg-ads-eus2-edh-preprd-appin-005",
-                        "rg-ads-eus2-edh-preprd-appsvc-005",
-                        "rg-ads-eus2-edh-preprd-ctrm-005",  
-                        "rg-ads-eus2-edh-preprd-dbx-005",
-                        "rg-ads-eus2-edh-preprd-dls2-005",
-                        "rg-ads-eus2-edh-preprd-syn-005" ]
-                        #"test" 
+resource-group = ["rg-ads-eus2-edh-preprd-adf-005",
+  "rg-ads-eus2-edh-preprd-appin-005",
+  "rg-ads-eus2-edh-preprd-appsvc-005",
+  "rg-ads-eus2-edh-preprd-ctrm-005",
+  "rg-ads-eus2-edh-preprd-dbx-005",
+  "rg-ads-eus2-edh-preprd-dls2-005",
+"rg-ads-eus2-edh-preprd-syn-005"]
+#"test" 
 #Vnet variables
-vnet_name           = "vnet-ads-eus2-analytics-int-edhpreprd-004"
-rgvnet              = "rg-ads-eus2-edh-preprd-dbx-005"
-address_space_vnet1 = ["10.40.48.0/20"]
 subnets = {
   pep = {
     name                              = "sn-ads-eus2-analytics-edhpreprd-pep-001"
@@ -21,11 +18,37 @@ subnets = {
     address_prefixes                  = ["10.40.52.64/26"]
     private_endpoint_network_policies = "Enabled"
   }
-  databricks = {
-    name                              = "sn-ads-eus2-analytics-edhpreprd-dbx-001"
+
+  databricks_public = {
+    name                              = "sn-ads-eus2-analytics-edhpreprd-dbxpub-001"
     address_prefixes                  = ["10.40.52.128/26"]
     private_endpoint_network_policies = "Enabled"
+    delegation = {
+      name         = "databricks-delegation"
+      service_name = "Microsoft.Databricks/workspaces"
+      actions      = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
   }
+  databricks_private = {
+    name                              = "sn-ads-eus2-analytics-edhpreprd-dbxpriv-001"
+    address_prefixes                  = ["10.40.52.192/26"]
+    private_endpoint_network_policies = "Enabled"
+    delegation = {
+      name         = "databricks-delegation"
+      service_name = "Microsoft.Databricks/workspaces"
+      actions      = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
+}
+
+network_security_groups = {
+  dbx_public  = "nsg-ads-eus2-analytics-edhpreprd-dbxpub-001"
+  dbx_private = "nsg-ads-eus2-analytics-edhpreprd-dbxpriv-001"
+}
+
+subnet_nsg_associations = {
+  databricks_public  = "dbx_public"
+  databricks_private = "dbx_private"
 }
 
 key_vault_name           = "kv-ads-eus2-edhpreprd-001"
@@ -50,11 +73,11 @@ storage_private_endpoints = {
 
 
 # TAG values
-AppId = "TBD"
+AppId              = "TBD"
 DataClassification = "CONFIDENTIAL"
-Role = "Tools"
-SupportGroup = "ADCS.Cloud.Infrastructure"
-environment = "dev"
+Role               = "Tools"
+SupportGroup       = "ADCS.Cloud.Infrastructure"
+environment        = "dev"
 
 #CTRM (VM) values
 rgvm                          = "rg-ads-eus2-edh-preprd-ctrm-005"
@@ -136,21 +159,11 @@ appser_sqldb1              = "sdb-ads-eus2-edhpreprd-002"
 sql_redundancy_appser      = true
 appser_endpoint            = "pep-sql-ads-eus2-edhpreprd-001"
 sql_admin_secret_name      = "sql-admin-password"
+
 #databricks Variables
-databricksworkspace_name = "dbx-ads-eus2-edh-preprd-003"
-dbrlogworkspace-name  = "law-ads-eus2-core-edhpreprd-001"
-databricks_managed_resource_group_name = "rg-ads-eus2-edh-preprd-dbx-001"
-// dbrsku  = "PerGB2018"
-sku_premium = "premium"
-// public_address_prefix_dbr  = ["10.40.52.0/26"]
-// private_address_prefix_dbr  = ["10.40.52.64/26"]
-// security_group_name_public_dbr  = "nsg-ads-eus2-analytics-edhpreped-dbxpub-001"
-// security_group_name_private_dbr = "nsg-ads-eus2-analytics-edhpreprd-dbxprv-001"
-rgdbr         = "rg-ads-eus2-edh-preprd-dbx-001"
-vnet_id                     = "/subscriptions/8987b447-d083-481e-9c0f-f2b73a15b18b/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004"
-#"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004"
-// private_subnet_name_dbr      = "sn-ads-eus2-analytics-preprd-prv-01"
-// public_subnet_name_dbr          = "sn-ads-eus2-analytics-preprd-pub-01"
+databricksworkspace_name    = "dbx-ads-eus2-edh-preprd-003"
+managed_resource_group_name = "rg-ads-eus2-edh-preprd-dbx-001"
+sku_premium                 = "premium"
 
 #Key vault values
 // key_vault_name = "kvadseus2e3wprd1"

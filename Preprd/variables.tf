@@ -6,7 +6,7 @@
 
 # # resource group name 
 variable "resource-group" {
-  type = list
+  type        = list(any)
   description = "The application name used to build resources"
 }
 
@@ -54,7 +54,7 @@ variable "storage_private_endpoints" {
 variable "vnet_name" {
   type        = string
   description = "Name of the virtual network"
-  default = "vnet-ads-eus2-analytics-int-edhpreprd-004"
+  default     = "vnet-ads-eus2-analytics-int-edhpreprd-004"
 }
 
 variable "rgvnet" {
@@ -65,7 +65,7 @@ variable "rgvnet" {
 variable "address_space_vnet1" {
   type        = list(string)
   description = "Address space for the virtual network"
-  default = ["10.40.52.0/26"]
+  default     = ["10.40.52.0/26"]
 }
 
 variable "subnets" {
@@ -75,6 +75,19 @@ variable "subnets" {
     private_endpoint_network_policies = string
   }))
   description = "Subnets to create in the VNet, keyed by logical name"
+}
+
+
+variable "network_security_groups" {
+  type        = map(string)
+  description = "NSGs to create in the VNet"
+  default     = {}
+}
+
+variable "subnet_nsg_associations" {
+  type        = map(string)
+  description = "Map of subnet key to NSG key"
+  default     = {}
 }
 
 variable "key_vault_name" {
@@ -164,30 +177,30 @@ variable "purge_protection_enabled" {
 
 #Tag Variables
 variable "AppId" {
-  type = string
+  type        = string
   description = "The AppId (Tag variable)"
   #default = "TBD" 
 }
 variable "environment" {
-  type = string
+  type        = string
   description = "The environment to be built (Tag variable)"
   #default = "dev"
 }
 
 variable "DataClassification" {
-  type = string
+  type        = string
   description = "The DataClassification (Tag variable)"
   #default = "CONFIDENTIAL"
 }
 
 variable "Role" {
-  type = string
+  type        = string
   description = "The Role (Tag variable)"
   #default = "Tools"
 }
 
 variable "SupportGroup" {
-  type = string
+  type        = string
   description = "The SupportGroup (Tag variable)"
   #default = "ADCS.Cloud.Infrastructure"
 }
@@ -335,7 +348,7 @@ variable "application_type" {
   description = "Application Insights application type (e.g. web)"
 }
 
- #Azure Synapse Analytics
+#Azure Synapse Analytics
 variable "sqlserver_name" {
   type        = string
   description = "Synapse SQL server name"
@@ -473,8 +486,27 @@ variable "databricksworkspace_name" {
   type        = string
   description = "Name of the workspace"
 }
-
-variable "databricks_managed_resource_group_name" {
+variable "managed_resource_group_name" {
   type        = string
-  description = "Name of the managed resource group for Databricks workspace"
+  description = "Name of the Databricks-managed resource group (created and owned by Azure Databricks)"
+}
+
+variable "dbrlogworkspace_name" {
+  type        = string
+  description = "Databricks Log Analytics workspace name"
+}
+
+variable "dbrsku" {
+  type        = string
+  description = "Databricks Log Analytics SKU"
+}
+
+variable "dbx_public_subnet_name" {
+  type        = string
+  description = "Databricks public subnet name (must match the VNet subnet)"
+}
+
+variable "dbx_private_subnet_name" {
+  type        = string
+  description = "Databricks private subnet name (must match the VNet subnet)"
 }

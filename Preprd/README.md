@@ -311,6 +311,56 @@ State is currently stored locally (`terraform.tfstate`). For team use, migrate t
 - **State files are committed.** `terraform.tfstate` and its backup are in version control. State can contain secrets and resource identifiers — remove them from the repo, add them to `.gitignore`, and use a remote backend.
 - **Least privilege.** Scope the deploying identity to only the permissions required for these resource groups.
 
+### Databricks VNet injection
+
+The Databricks workspace was upgraded from a standard workspace to a **VNet-injected**
+workspace, so its compute runs inside the project's virtual network rather than a
+Microsoft-managed network. This required enabling several previously-commented pieces
+and wiring them through the VNet module's outputs.
+
+**What VNet injection needs, and why:**
+
+- **Two subnets (public/host and private/container).** Databricks injection splits
+  cluster networking by role. The private (container) subnet holds the actual compute
+  — the cluster nodes running Spark workloads, locked down with no direct inbound
+  internet. The public (host) subnet carries the VM host layer's outbound path to the
+  Databricks control plane. The split isolates the data-processing workload from
+  management/control traffic — different trust levels, different subnets. Both are
+  mandatory for injection.
+
+- **Subnet delegation.** Each Databricks subnet is delegated to
+  `Microsoft.Databricks/workspaces` with the
+  `Microsoft.Network/virtualNetworks/subnets/join/action` action. Delegation is an
+  explicit, scoped grant that lets the Databricks service inject its managed compute
+  NICs into the subnet — without it, Azure refuses to let the service manipulate the
+  network. A delegated subnet becomes reserved for that service.
+
+- **Network Security Groups (NSGs) and associations.** An NSG is a firewall rule list.
+  It has no effect until *associated* with a subnet (or NIC) — the association is what
+  applies the rules to traffic. Databricks requires each of its subnets to have an NSG
+  associated, and its `custom_parameters` block references the **association IDs** (not
+  just the subnet IDs) to prove the associations exist before the workspace injects.
+
+**How it's wired (loose coupling):**
+
+The VNet module owns all subnets, NSGs, and associations, and exposes them via outputs
+(`subnet_ids`, `subnet_names`, `nsg_association_ids`). The Databricks module consumes
+these outputs — `virtual_network_id`, the subnet names, and the NSG association IDs —
+rather than hardcoding any network details. The subnet object type was extended with an
+`optional()` delegation attribute and a `dynamic "delegation"` block, so only the
+Databricks subnets carry delegation while `pep`/`app` remain plain.
+
+### Why every resource is tagged
+
+All resources carry a consistent five-tag governance set (`AppId`, `environment`,
+`DataClassification`, `Role`, `SupportGroup`). Tags don't change how a resource
+functions — their value is operational: **cost allocation** (Azure bills can be broken
+down by tag, e.g. total spend per environment or application), **ownership** (who to
+contact when a resource has issues), **governance/compliance** (policies can enforce
+rules on, e.g., anything classified CONFIDENTIAL), and **automation** (scripts target
+resources by tag). Applying the set to *every* resource avoids blind spots in cost
+reports and governance queries.
+
 Suggested `.gitignore` additions:
 
 ```gitignore

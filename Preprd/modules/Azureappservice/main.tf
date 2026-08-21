@@ -1,9 +1,9 @@
 
-terraform { 
-  required_providers { 
-    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
-    } 
-  } 
+terraform {
+  required_providers {
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0"
+    }
+  }
 }
 # App Service Plan — modern azurerm_service_plan (replaces azurerm_app_service_plan).
 # The old sku{} block + kind + reserved are now flat os_type + sku_name.
@@ -28,12 +28,12 @@ resource "azurerm_service_plan" "serviceplan" {
 resource "azurerm_linux_web_app" "appservice" {
   for_each = var.app_services
 
-  name                = each.value
-  location            = var.location
-  resource_group_name = var.rgappser
-  service_plan_id     = azurerm_service_plan.serviceplan.id
+  name                       = each.value
+  location                   = var.location
+  resource_group_name        = var.rgappser
+  service_plan_id            = azurerm_service_plan.serviceplan.id
   client_certificate_enabled = false
-  https_only          = true
+  https_only                 = true
 
   site_config {
     ftps_state    = var.ftps_state
@@ -76,9 +76,9 @@ resource "azurerm_mssql_server" "sql_server1" {
 # Two SQL databases — modern azurerm_mssql_database (replaces azurerm_sql_database).
 # server_name + requested_service_objective_name are now server_id + sku_name.
 resource "azurerm_mssql_database" "sql_database" {
-  name         = var.appsersqldb_name
-  server_id    = azurerm_mssql_server.sql_server1.id
-  sku_name     = var.sql_sku_appser
+  name           = var.appsersqldb_name
+  server_id      = azurerm_mssql_server.sql_server1.id
+  sku_name       = var.sql_sku_appser
   zone_redundant = var.sql_redundancy_appser
 
   tags = {

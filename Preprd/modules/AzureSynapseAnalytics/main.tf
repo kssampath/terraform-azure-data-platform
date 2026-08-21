@@ -1,10 +1,10 @@
 
-terraform { 
-  required_providers { 
-    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0" 
-    } 
-  } 
-}# SQL server hosting the Synapse SQL data warehouse (modern azurerm_mssql_server).
+terraform {
+  required_providers {
+    azurerm = { source = "hashicorp/azurerm", version = "~> 4.0"
+    }
+  }
+} # SQL server hosting the Synapse SQL data warehouse (modern azurerm_mssql_server).
 # Admin password read from Key Vault at runtime — never stored in code/tfvars.
 resource "azurerm_mssql_server" "sql_server" {
   name                         = var.sqlserver_name
