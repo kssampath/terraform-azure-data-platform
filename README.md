@@ -38,10 +38,9 @@ Every environment follows the same convention: a root configuration (`main.tf`, 
 
 ## Technology
 
-- **Terraform** `>= 0.12`
-- **Azure provider** (`azurerm`) `>= 2.0.0`
+- **Terraform** `>= 1.0`
+- **Azure provider** (`azurerm`) `~> 4.0`
 - Target cloud: **Microsoft Azure** (public)
-
 ---
 
 ## Getting started
@@ -63,8 +62,7 @@ Full prerequisites, authentication, configuration, and the architecture diagram 
 
 - **Naming:** resources follow the pattern `<type>-ads-eus2-edh-<env>-<service>-<nnn>` (e.g. `rg-ads-eus2-edh-preprd-dbx-005`).
 - **Tagging:** every resource carries a common governance tag set — `AppId`, `environment`, `DataClassification`, `Role`, `SupportGroup`.
-- **Modules:** each module exposes `main.tf`, `variable(s).tf`, and (where relevant) `output(s).tf`.
-
+- **Modules:** each module exposes main.tf, variables.tf, and output.tf; modules that read secrets also include a data.tf
 ---
 
 ## Security
