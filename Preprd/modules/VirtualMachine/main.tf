@@ -1,202 +1,81 @@
-// Create the subnets in vnet
-// resource "azurerm_subnet" "public-subnet" {
-//   name                 = var.vmsubnetname #"sn-ads-eus2-analytics-edhpreprd-app-001"
-//   resource_group_name  = var.rgvnet
-//   virtual_network_name = var.vnet #"vnet-ads-eus2-analytics-int-edhpreprd-004"
-//   address_prefixes     = var.vmsb_add #["10.40.49.0/24"]
-//   enforce_private_link_endpoint_network_policies = true
+# One NIC per VM, keyed the same as the VMs so they pair up by each.key.
+resource "azurerm_network_interface" "nic" {
+  for_each = var.virtual_machines
 
-// }
-
-resource "azurerm_network_interface" "main1" {
-  name                = var.nicname1 #"example-nic1"
-  // depends_on          = [azurerm_subnet.public-subnet]
+  name                = each.value.nic_name
   location            = var.location
   resource_group_name = var.rgvm
 
   ip_configuration {
-    name                          = var.vmsubnetname #"sn-ads-eus2-analytics-edhpreprd-app-001"
+    name                          = each.value.ip_config_name
     subnet_id                     = var.vmnicsub_id
-    private_ip_address_allocation = var.private_ip_address_allocation #"Dynamic"
-  }
-}
-resource "azurerm_network_interface" "main2" {
-  name                =  var.nicname2 #"example-nic2"
-  // depends_on          = [azurerm_subnet.public-subnet]
-  location            = var.location
-  resource_group_name = var.rgvm
-
-  ip_configuration {
-    name                          = var.vmsubnetname #"sn-ads-eus2-analytics-edhpreprd-app-001"
-    subnet_id                     = var.vmnicsub_id
-    private_ip_address_allocation = var.private_ip_address_allocation #"Dynamic"
+    private_ip_address_allocation = var.private_ip_address_allocation
   }
 }
 
-# Create Virtual Machine
-resource "azurerm_virtual_machine" "MyMachine1" {
-  name                  = var.vm1
-  depends_on          = [azurerm_network_interface.main1]
-  location              = var.location
-  resource_group_name   = var.rgvm
-  #"rg-ads-eus2-edh-dev-ctrm-001"
-  network_interface_ids = [azurerm_network_interface.main1.id]
-  vm_size               = var.vm_size #"Standard_E2s_v3"
+# Modern Linux VM resource (replaces the deprecated azurerm_virtual_machine).
+resource "azurerm_linux_virtual_machine" "vm" {
+  for_each = var.virtual_machines
 
-  storage_image_reference {
-    publisher = var.publisher #"RedHat"
-    offer     = var.offer #"RHEL"
-    sku       = var.sku #"7.8"  
-    version   = var.version1 #"latest"
-  }
-  storage_os_disk {
-    name              = var.os_disk1
-    caching           = var.caching
-    create_option     = var.create_option #"FromImage"
-    managed_disk_type = var.managed_disk_type #"Premium_LRS"
-    os_type = var.os_type #"Linux"
+  name                            = each.value.name
+  location                        = var.location
+  resource_group_name             = var.rgvm
+  size                            = var.vm_size
+  computer_name                   = each.value.computer_name
+  admin_username                  = each.value.admin_username
+  admin_password                  = data.azurerm_key_vault_secret.vm_admin_password.value
+  disable_password_authentication = false
+  network_interface_ids           = [azurerm_network_interface.nic[each.key].id]
+
+  os_disk {
+    name                 = each.value.os_disk_name
+    caching              = var.caching
+    storage_account_type = var.managed_disk_type
   }
 
-  os_profile {
-    computer_name = var.computer_name1 #"ACS29L018"
-    admin_username = var.admin_username1 # "ctrmadmin"
-    admin_password = data.azurerm_key_vault_secret.password.value
-    #var.admin_password1 #"Ab@c123"
+  source_image_reference {
+    publisher = var.publisher
+    offer     = var.offer
+    sku       = var.sku
+    version   = var.version1
   }
 
-  os_profile_linux_config {
-    disable_password_authentication = false
+  tags = {
+    AppId              = var.AppId
+    environment        = var.environment
+    DataClassification = var.DataClassification
+    Role               = var.Role
+    SupportGroup       = var.SupportGroup
   }
-  
-tags = {
-    AppId = var.AppId #"TBD" 
-    environment = var.environment
-    DataClassification = var.DataClassification #"CONFIDENTIAL"
-    Role = var.Role #"Tools"
-    SupportGroup = var.SupportGroup #"ADCS.Cloud.Infrastructure"
-    }
 }
 
+# One data disk per VM.
+resource "azurerm_managed_disk" "data_disk" {
+  for_each = var.virtual_machines
 
-resource "azurerm_managed_disk" "dataDiskResources1" {
-  name                 = var.managed_disk_type_name1 #"acs29l018-datadisk-01"
+  name                 = each.value.data_disk_name
   location             = var.location
   resource_group_name  = var.rgvm
-  storage_account_type = var.storage_account_type #"Standard_LRS"
+  storage_account_type = var.storage_account_type
   create_option        = "Empty"
-  disk_size_gb         = "64"
-  zones = ["1"]
+  disk_size_gb         = 64
+  zone                 = "1"
 
-tags = {
-    AppId = var.AppId #"TBD" 
-    environment = var.environment
-    DataClassification = var.DataClassification #"CONFIDENTIAL"
-    Role = var.Role #"Tools"
-    SupportGroup = var.SupportGroup #"ADCS.Cloud.Infrastructure"
-    }
+  tags = {
+    AppId              = var.AppId
+    environment        = var.environment
+    DataClassification = var.DataClassification
+    Role               = var.Role
+    SupportGroup       = var.SupportGroup
+  }
 }
 
-resource "azurerm_virtual_machine_data_disk_attachment" "vm1d1" {
-  managed_disk_id    = azurerm_managed_disk.dataDiskResources1.id
-  virtual_machine_id = azurerm_virtual_machine.MyMachine1.id
-  lun                = "0"
-  caching            = "None"
-}
+# Attach each data disk to its matching VM (paired by each.key).
+resource "azurerm_virtual_machine_data_disk_attachment" "attach" {
+  for_each = var.virtual_machines
 
-
-// resource "azurerm_managed_disk" "dataDiskResources2" {
-//   name                 = "acs29l018-datadisk-02"
-//   location             = var.location
-//   resource_group_name  = "rg-ads-eus2-pioneer-inn-armtotf"
-//   storage_account_type = "Standard_LRS"
-//   create_option        = "Restore"
-//   disk_size_gb         = "64"
-//   zones = ["1"]
-
-// tags = {
-//         AppID = "TBD"
-//         SupportGroup = "ADCS.Cloud.Infrastructure"
-//         Role = ""
-//         DataClassification = "CONFIDENTIAL"
-//         Environment = "DEV"
-//     }
-// }
-
-// resource "azurerm_virtual_machine_data_disk_attachment" "vm1d2" {
-//   managed_disk_id    = azurerm_managed_disk.dataDiskResources2.id
-//   virtual_machine_id = azurerm_virtual_machine.MyMachine1.id
-//   lun                = "0"
-//   caching            = "None"
-// }
-
-
-resource "azurerm_virtual_machine" "MyMachine2" {
-  name                  = var.vm2
-  depends_on          = [azurerm_network_interface.main2]
-  location              = var.location
-  resource_group_name   = var.rgvm
-  network_interface_ids = [azurerm_network_interface.main2.id]
-  vm_size               = var.vm_size #"Standard_E2s_v3"
-
-  storage_image_reference {
-    publisher = var.publisher #"RedHat"
-    offer     = var.offer #"RHEL"
-    sku       = var.sku #"7.8"  
-    version   = var.version1 #"latest"
-  }
-
-  storage_os_disk {
-    name              = var.os_disk2
-    caching           = var.caching
-    create_option     = var.create_option #"FromImage"
-    managed_disk_type = var.managed_disk_type #"Premium_LRS"
-    os_type = var.os_type #"Linux"
-
-  }
-
-  os_profile {
-    computer_name = var.computer_name2 #"ACS29L018"
-    admin_username = var.admin_username2 # "ctrmadmin"
-    admin_password = data.azurerm_key_vault_secret.password.value
-    #var.admin_password2 #"Ab@c123"
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  
-tags = {
-    AppId = var.AppId #"TBD" 
-    environment = var.environment
-    DataClassification = var.DataClassification #"CONFIDENTIAL"
-    Role = var.Role #"Tools"
-    SupportGroup = var.SupportGroup #"ADCS.Cloud.Infrastructure"
-    }
-}
-
-resource "azurerm_managed_disk" "dataDiskResources2" {
-  name                 = var.managed_disk_type_name2 #"acs29l019-datadisk-01"
-  location             = var.location #"eastus2"
-  resource_group_name  = var.rgvm
-  storage_account_type = var.storage_account_type #"Standard_LRS"
-  #storage_account_type = "null"
-  create_option        = "Empty"
-  disk_size_gb         = "64"
-  zones = ["1"]
-
-tags = {
-    AppId = var.AppId #"TBD" 
-    environment = var.environment
-    DataClassification = var.DataClassification #"CONFIDENTIAL"
-    Role = var.Role #"Tools"
-    SupportGroup = var.SupportGroup #"ADCS.Cloud.Infrastructure"
-    }
-}
-
-
-resource "azurerm_virtual_machine_data_disk_attachment" "vm2d1" {
-  managed_disk_id    = azurerm_managed_disk.dataDiskResources2.id
-  virtual_machine_id = azurerm_virtual_machine.MyMachine2.id
-  lun                = "0"
+  managed_disk_id    = azurerm_managed_disk.data_disk[each.key].id
+  virtual_machine_id = azurerm_linux_virtual_machine.vm[each.key].id
+  lun                = 0
   caching            = "None"
 }

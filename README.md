@@ -1,20 +1,92 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Terraform Modules
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+![Terraform](https://img.shields.io/badge/Terraform-1.x-7B42BC?logo=terraform&logoColor=white)
+![azurerm](https://img.shields.io/badge/azurerm-~%3E%204.0-0078D4?logo=microsoftazure&logoColor=white)
+![Cloud](https://img.shields.io/badge/cloud-Azure-0078D4?logo=microsoftazure&logoColor=white)
+![IaC](https://img.shields.io/badge/IaC-Terraform-blueviolet)
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+Infrastructure-as-code for provisioning the **Enterprise Data Hub (EDH)** platform on **Microsoft Azure**. This repository holds reusable Terraform modules and the environment configurations that compose them.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+---
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## What's here
+
+Each top-level folder is a self-contained **environment** — a root Terraform configuration that wires together the service modules under its own `modules/` directory.
+
+| Environment | Region | Purpose | Docs |
+|---|---|---|---|
+| [`Preprd/`](./Preprd) | East US 2 | Pre-production EDH stack (resource groups, networking, Databricks, storage, analytics) | [Preprd README](./Preprd/README.md) |
+
+> Additional environments (e.g. `Dev/`, `Prod/`) would each live in their own top-level folder following the same structure.
+
+---
+
+## Repository structure
+
+```
+Terraform-modules/
+├── README.md              ← you are here (repo overview)
+├── .gitignore
+└── Preprd/                ← pre-prod environment
+    ├── README.md          ← detailed setup, architecture, and usage
+    ├── main.tf            ← composes the service modules
+    ├── variables.tf
+    ├── provider.tf
+    ├── demo.auto.tfvars
+    ├── docs/              ← architecture diagram + diagram-as-code
+    └── modules/           ← reusable per-service modules
+```
+
+Every environment follows the same convention: a root configuration (`main.tf`, `variables.tf`, `provider.tf`, `*.tfvars`) plus a `modules/` folder of single-purpose building blocks (resource group, virtual network, storage, Databricks, etc.).
+
+---
+
+## Technology
+
+- **Terraform** `>= 1.0`
+- **Azure provider** (`azurerm`) `~> 4.0`
+- Target cloud: **Microsoft Azure** (public)
+---
+
+## Getting started
+
+Work happens inside an environment folder, not at the repo root. To stand up the pre-prod environment:
+
+```bash
+cd Preprd
+terraform init
+terraform plan
+terraform apply
+```
+
+Full prerequisites, authentication, configuration, and the architecture diagram are documented in the **[Preprd README](./Preprd/README.md)**. Start there.
+
+---
+
+## Conventions
+
+- **Naming:** resources follow the pattern `<type>-ads-eus2-edh-<env>-<service>-<nnn>` (e.g. `rg-ads-eus2-edh-preprd-dbx-005`).
+- **Tagging:** every resource carries a common governance tag set — `AppId`, `environment`, `DataClassification`, `Role`, `SupportGroup`.
+- **Modules:** each module exposes main.tf, variables.tf, and output.tf; modules that read secrets also include a data.tf
+---
+
+## Security
+
+- **Do not commit secrets.** Credentials belong in Azure Key Vault or `TF_VAR_*` environment variables, never in `.tfvars`.
+- **Do not commit state.** `*.tfstate` files can contain secrets and are excluded via `.gitignore`; use a remote backend for shared work.
+
+See the [Preprd README](./Preprd/README.md#security) for environment-specific security notes.
+
+---
+
+## Contributing
+
+1. Create a branch for your change.
+2. Run `terraform fmt` and `terraform validate` before committing.
+3. Run `terraform plan` and include the summary in your pull request.
+4. Open a PR against the default branch for review.
+
+---
+
+## License
+No license is currently specified. All rights reserved.

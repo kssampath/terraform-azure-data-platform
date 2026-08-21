@@ -1,71 +1,51 @@
-// variable "dbrlogworkspace-name" {
-//   type        = string
-//   description = "The workspace name"
-//   default     = "law-ads-eus2-core-dev-001"
-// }
+variable "dbrlogworkspace_name" {
+  type        = string
+  description = "Databricks Log Analytics workspace name"
+}
 
-// variable "dbrsku" {
-//   type        = string
-//   description = "The sku"
-//   default     = "PerGB2018"
-// }
- 
-// variable "security_group_name_public_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
+variable "dbrsku" {
+  type        = string
+  description = "Log Analytics SKU"
+}
 
-// variable "security_group_name_private_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
+variable "vnet_id" {
+  type        = string
+  description = "ID of the VNet for Databricks injection"
+}
 
+variable "public_subnet_name_dbr" {
+  type        = string
+  description = "Name of the Databricks public (host) subnet"
+}
+
+variable "private_subnet_name_dbr" {
+  type        = string
+  description = "Name of the Databricks private (container) subnet"
+}
+
+variable "public_subnet_nsg_association_id" {
+  type        = string
+  description = "NSG association ID for the public subnet"
+}
+
+variable "private_subnet_nsg_association_id" {
+  type        = string
+  description = "NSG association ID for the private subnet"
+}
+
+variable "managed_resource_group_name" {
+  type        = string
+  description = "Name of the Databricks-managed resource group"
+}
 variable "location" {
   type        = string
   description = "Location in which Databricks will be deployed"
 }
 
-// variable "private_address_prefix_dbr" {
-//   type        = list
-//   description = "The private_address_prefix"
-// }
-
-// variable "public_address_prefix_dbr" {
-//   type        = list
-//   description = "The public_address_prefix"
-// }
-
 variable "sku_premium" {
   type        = string
   description = "The sku "
 }
-
-
-// variable "vnet_name" {
-//   type        = string
-//   description = "Name of vnet"
-//   default = "vnet-ads-eus2-analytics-int-dev-004"
-// }
-// variable "vnet_id" {
-//   type = string
-// }
-
-// variable "rgvnet" {
-//   type        = string
-//   description = "Name of resource group which contains the virtual network and subnets"
-// }
-
-// variable "private_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the private subnet"
-// }
-
-// variable "public_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the public subnet"
-// }
 
 variable "rgdbr" {
   type        = string
@@ -78,32 +58,32 @@ variable "databricksworkspace_name" {
 }
 
 variable "AppId" {
-  type = string
+  type        = string
   description = "The AppId"
-  default = "TBD" 
+  default     = "TBD"
 }
 
 variable "environment" {
-  type = string
+  type        = string
   description = "The environment to be built"
-  default = "dev"
+  default     = "dev"
 }
 
 variable "DataClassification" {
-  type = string
+  type        = string
   description = "The DataClassification"
-  default = "CONFIDENTIAL"
+  default     = "CONFIDENTIAL"
 }
 
 variable "Role" {
-  type = string
+  type        = string
   description = "The Role"
-  default = "Tools"
+  default     = "Tools"
 }
 
 variable "SupportGroup" {
-  type = string
+  type        = string
   description = "The SupportGroup"
-  default = "ADCS.Cloud.Infrastructure"
+  default     = "ADCS.Cloud.Infrastructure"
 }
 

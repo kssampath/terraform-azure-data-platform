@@ -1,6 +1,12 @@
-# resource group name 
+# If you don't declare varibales in the root variables.tf, you will get an error like this:
+# Error: Reference to undeclared input variable
+# The line in demo.auto.tfvars has nowhere to land. Terraform sees a value for a variable the root doesn't know about.
+# The root declaration lets the value enter your configuration from the tfvars file.
+# The module declaration lets the value enter the module from the root.
+
+# # resource group name 
 variable "resource-group" {
-  type = list
+  type        = list(any)
   description = "The application name used to build resources"
 }
 
@@ -9,30 +15,100 @@ variable "location" {
   type = string
   #default = "eastus2"
 }
+variable "storage-name" {
+  type        = string
+  description = "Storage account name (ADLS Gen2)"
+}
 
-// variable "subnet_name1" {
-//   type = string
-//   description = "The subnet name of subnet of storage account"
-//   #default = "sn-ads-eus2-analytics-edhpreprd-pep-001"
-// }
+variable "storage_rg" {
+  type        = string
+  description = "Resource group for the storage account"
+}
 
-// variable "vnet_name" {
-//   type = string
-//   description = "The vnet name"
-//   #default = "vnet-ads-eus2-analytics-int-edhpreprd-004"
-// }
+variable "account-tier" {
+  type        = string
+  description = "Storage account tier"
+}
 
-// variable "address_prefixes_sub1" {
-//   type = string
-//   description = "The address_prefix of subnet of storage "
-//   #default = "10.40.52.0/26"
-// }
-// variable "address_space_vnet1" {
-//   type = list
-//   description = "The address_prefix of Vnet"
-  
-// }
+variable "replication-type" {
+  type        = string
+  description = "Storage replication type"
+}
 
+variable "storage-kind" {
+  type        = string
+  description = "Storage account kind"
+}
+
+variable "storage-tls" {
+  type        = string
+  description = "Minimum TLS version"
+}
+
+variable "storage_private_endpoints" {
+  type        = map(string)
+  description = "Map of storage sub-resource type to private endpoint name"
+}
+
+# Variables of Vnet and subnets
+variable "vnet_name" {
+  type        = string
+  description = "Name of the virtual network"
+  default     = "vnet-ads-eus2-analytics-int-edhpreprd-004"
+}
+
+variable "rgvnet" {
+  type        = string
+  description = "Resource group for the virtual network"
+}
+
+variable "address_space_vnet1" {
+  type        = list(string)
+  description = "Address space for the virtual network"
+  default     = ["10.40.52.0/26"]
+}
+
+variable "subnets" {
+  type = map(object({
+    name                              = string
+    address_prefixes                  = list(string)
+    private_endpoint_network_policies = string
+  }))
+  description = "Subnets to create in the VNet, keyed by logical name"
+}
+
+
+variable "network_security_groups" {
+  type        = map(string)
+  description = "NSGs to create in the VNet"
+  default     = {}
+}
+
+variable "subnet_nsg_associations" {
+  type        = map(string)
+  description = "Map of subnet key to NSG key"
+  default     = {}
+}
+
+variable "key_vault_name" {
+  type        = string
+  description = "Name of the Key Vault"
+}
+
+variable "rgkv" {
+  type        = string
+  description = "Resource group for the Key Vault"
+}
+
+variable "purge_protection_enabled" {
+  type        = bool
+  description = "Whether purge protection is enabled on the Key Vault"
+  default     = false
+}
+variable "key_vault_end_point_name" {
+  type        = string
+  description = "Name of the Key Vault private endpoint"
+}
 # variable "storage_rg" {
 #   type = string
 #   description = "Resource group name of Storage_account"
@@ -104,30 +180,30 @@ variable "location" {
 
 #Tag Variables
 variable "AppId" {
-  type = string
+  type        = string
   description = "The AppId (Tag variable)"
   #default = "TBD" 
 }
 variable "environment" {
-  type = string
+  type        = string
   description = "The environment to be built (Tag variable)"
   #default = "dev"
 }
 
 variable "DataClassification" {
-  type = string
+  type        = string
   description = "The DataClassification (Tag variable)"
   #default = "CONFIDENTIAL"
 }
 
 variable "Role" {
-  type = string
+  type        = string
   description = "The Role (Tag variable)"
   #default = "Tools"
 }
 
 variable "SupportGroup" {
-  type = string
+  type        = string
   description = "The SupportGroup (Tag variable)"
   #default = "ADCS.Cloud.Infrastructure"
 }
@@ -136,168 +212,73 @@ variable "SupportGroup" {
 
 
 #Variables of Virtual Machine
+variable "virtual_machines" {
+  type = map(object({
+    name           = string
+    nic_name       = string
+    ip_config_name = string
+    computer_name  = string
+    admin_username = string
+    os_disk_name   = string
+    data_disk_name = string
+  }))
+  description = "Map of VM definitions, keyed by logical name"
+}
 
-# variable "vmnicsub_id" {
-#   type = string
-#   description = "The vmnicsubnet_id"
-#   default = ""
-# }
-# variable "caching" {
-#   type = string
-#   description = "Resource group name"
-#   default = "ReadWrite"
-# }
+variable "rgvm" {
+  type        = string
+  description = "Resource group for the CTRM VMs"
+}
 
-# variable "os_disk1" {
-#   type = string
-#   description = "storage_os_disk name"
-#   #default = "acs29l018-osdisk-20210805-181232"
-# }
+variable "vm_size" {
+  type        = string
+  description = "VM size"
+}
 
-# variable "os_disk2" {
-#   type = string
-#   description = "storage_os_disk name"
-#  # default = "acs29l018-osdisk-20210805-181232"
-# }
+variable "private_ip_address_allocation" {
+  type        = string
+  description = "Private IP allocation method"
+}
 
-# variable "vm1" {
-#   type = string
-#   description = "virtual machine name 1"
-#   default = "ACS29L018"
-# }
+variable "publisher" {
+  type        = string
+  description = "VM image publisher"
+}
 
-# variable "vm2" {
-#   type = string
-#   description = "virtual machine name 2"
-#   default = "ACS29L019"
-# }
+variable "offer" {
+  type        = string
+  description = "VM image offer"
+}
 
-# variable "os_type" {
-#   type = string
-#   description = ""
-#   default = ""
-# }
+variable "sku" {
+  type        = string
+  description = "VM image SKU"
+}
 
-# variable "vmsubnetname" {
-#   type = string
-#   description = "The subnet name"
-#   default = ""
-# }
+variable "version1" {
+  type        = string
+  description = "VM image version"
+}
 
-# // variable "vmsb_add" {
-# //   type = list
-# //   description = "The address vprefixes"
-# //   #default = ""
-# // }
+variable "caching" {
+  type        = string
+  description = "OS disk caching"
+}
 
-# variable "nicname1" {
-#   type = string
-#   description = "The nic1 name"
-#   default = ""
-# }
+variable "managed_disk_type" {
+  type        = string
+  description = "OS disk storage account type"
+}
 
-# variable "nicname2" {
-#   type = string
-#   description = "The nic2 name"
-#   default = ""
-# }
+variable "storage_account_type" {
+  type        = string
+  description = "Data disk storage account type"
+}
 
-# variable "private_ip_address_allocation" {
-#   type = string
-#   description = "The private_ip_address_allocation"
-#   default = ""
-# }
-
-# variable "rgvm" {
-#   type = string
-#   description = "The Resourse group of VM"
-#   default = ""
-# }
-
-# variable "vm_size" {
-#   type = string
-#   description = "The vm size"
-#   default = ""
-# }
-
-# variable "publisher" {
-#   type = string
-#   description = "The publisher"
-#   default = ""
-# }
-# variable "offer" {
-#   type = string
-#   description = "The offer"
-#   default = ""
-# }
-# variable "computer_name1" {
-#   type = string
-#   description = "The computer name1"
-#  default = ""
-# }
-# variable "admin_username1" {
-#   type = string
-#   description = "The admin username"
-#  default = ""
-# }
-# variable "admin_password1" {
-#   type = string
-#   description = "The admin password"
-#  default = ""
-# }
-# variable "computer_name2" {
-#   type = string
-#   description = "The computer name2"
-#  default = ""
-# }
-# variable "admin_username2" {
-#   type = string
-#   description = "The admin username2"
-#  default = ""
-# }
-# variable "admin_password2" {
-#   type = string
-#   description = "The admin password2"
-#  default = ""
-# }
-# variable "sku" {
-#   type = string
-#   description = "The sku"
-#  default = ""
-# }
-# variable "version1" {
-#   type = string
-#   description = "The version"
-#  default = ""
-# }
-# variable "managed_disk_type" {
-#   type = string
-#   description = "managed_disk_type"
-#  default = ""
-# }
-# variable "managed_disk_type_name1" {
-#   type = string
-#   description = "Managed_disk_type name1"
-#  default = ""
-# }
-# variable "managed_disk_type_name2" {
-#   type = string
-#   description = "Managed_disk_type name2"
-#  default = ""
-# }
-
-# variable "storage_account_type" {
-#   type = string
-#   description = "Storage_account_type (VM)"
-#  default = ""
-# }
-
-# variable "create_option" {
-#   type = string
-#   description = ""
-#   #default = ""
-# }
-
+variable "vm_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name holding the VM admin password"
+}
 
 #Keyvault variables
 // variable "key_vault_name" {
@@ -329,275 +310,175 @@ variable "SupportGroup" {
 // }
 
 #Datafactory variables
-# variable "datafactory_name" {
-#   type = string
-#   description = "Datafactory Name"
-# #  default = "adf-ads-eus2-edhpreprd-dev-002"
-# }
+variable "datafactory_name" {
+  type        = string
+  description = "Data Factory name"
+}
 
-# variable "rgdfac" {
-#   description = "Resource group name of datafactory"
-# #  default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+variable "rgdfac" {
+  type        = string
+  description = "Resource group for the Data Factory"
+}
 
-# variable "datafactory_endpointname" {
-#   type = string
-#   description = "datafactory private endpoint name"
-# #  default = "pep-adf-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "dfacsubnet_id" {
-#   type = string
-#   description = "The subnet_id used in datafactory"
-# #  default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-# }
-
+variable "datafactory_endpointname" {
+  type        = string
+  description = "Data Factory private endpoint name"
+}
 
 #AppInsights name
-# variable "loganalytics_workspace_appin" {
-#   type = string
-#   description = "The loganalytics workspace name"
-#   // default = "workspace-test" 
-# }
+variable "loganalytics_workspace_appin" {
+  type        = string
+  description = "Log Analytics workspace name for App Insights"
+}
 
-# variable "rgappin" {
-#   description = "Resource group name"
-#   // default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+variable "rgappin" {
+  type        = string
+  description = "Resource group for App Insights"
+}
 
-# variable "sku_appin" {
-#   type = string
-#   description = "The sku"
-#   // default = "PerGB2018"
-# }
+variable "appinsights_name" {
+  type        = string
+  description = "Application Insights instance name"
+}
 
-# variable "appinsights_name" {
-#   type = string
-#   description = "The appinsights name"
-#   // default = "appin-ads-eus2-edhpreprd-dev-001"
-# }
+variable "sku_appin" {
+  type        = string
+  description = "Log Analytics SKU"
+}
 
-# variable "application_type" {
-#   type = string
-#   description = "The application type"
-#   // default = "web"
-# }
+variable "application_type" {
+  type        = string
+  description = "Application Insights application type (e.g. web)"
+}
 
- #Azure Synapse Analytics
-# variable "rgsyn" {
-#   description = "Resource group name"
-#   default = "rg-ads-eus2-pioneer-inn-armtotf"
-# }
+#Azure Synapse Analytics
+variable "sqlserver_name" {
+  type        = string
+  description = "Synapse SQL server name"
+}
 
-# variable "sqlserver_name" {
-#   type = string
-#   description = "The sqlserver name"
-#   default = "acs26x012"
-# }
+variable "versionsyn" {
+  type        = string
+  description = "Synapse SQL server version"
+}
 
-# variable "versionsyn" {
-#   type = string
-#   description = "The environment to be built"
-#   default = "12.0"
-# }
+variable "administrator_login_synsql" {
+  type        = string
+  description = "Synapse SQL administrator login"
+}
 
-# variable "administrator_login_synsql" {
-#   type = string
-#   description = "The administrator_login"
-#   default = ""
-# }
+variable "sqldw_name" {
+  type        = string
+  description = "Synapse SQL data warehouse name"
+}
 
-# variable "administrator_login_password_synsql" {
-#   type = string
-#   description = "The administrator_login_password"
-#   default = "dev"
-# }
+variable "sqldw_sku" {
+  type        = string
+  description = "Synapse data warehouse SKU"
+}
 
-# variable "sqldw_name" {
-#   type = string
-#   description = "The sql datawarehouse name"
-#   default = "syn-ads-eus2-edhpreprd-dev-001"
-# }
+variable "sqlser_endpoint" {
+  type        = string
+  description = "Synapse SQL private endpoint name"
+}
 
-# variable "editionsyn" {
-#   type = string
-#   description = "The edition"
-#   default = "DataWarehouse"
-# }
+variable "rgsyn" {
+  type        = string
+  description = "Resource group for Synapse"
+}
 
-# variable "sqlser_endpoint" {
-#   type = string
-#   description = "The sqlserver private endpoint"
-#   default = "pep-a6X0011"
-# }
-
-# variable "synsubnet_id" {
-#   type = string
-#   description = "The subnet_id"
-#   default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-# }
-# variable "requested_service_objective_name" {
-#   type = string
-# }
-
+variable "syn_sql_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name for the Synapse SQL admin password"
+}
 #Azure App service values
+variable "appServPlanName" {
+  type        = string
+  description = "App Service Plan name"
+}
 
-# variable "linux_fx_version" {
-#   type = string
-# }
+variable "app_service_sku_name" {
+  type        = string
+  description = "App Service Plan SKU"
+}
 
-# variable "ftps_state" {
-#   type = string
-# } 
+variable "app_services" {
+  type        = map(string)
+  description = "Map of logical name to web app name"
+}
 
-# variable "http2_enabled" {
-  
-# } 
+variable "node_version" {
+  type        = string
+  description = "Node.js version for web apps"
+}
 
-# variable "php_version" {
-#   type = string
-# } 
+variable "ftps_state" {
+  type        = string
+  description = "FTPS state"
+}
 
-# variable "python_version" {
-#   type = string
-# } 
+variable "http2_enabled" {
+  type        = bool
+  description = "Whether HTTP/2 is enabled"
+}
 
-# variable "dotnet_framework_version" {
-#   type = string
-# }
+variable "rgappser" {
+  type        = string
+  description = "Resource group for App Service resources"
+}
 
-# variable "rgappser" {
-#   type = string
-# }
+variable "appser_sql_server_name" {
+  type        = string
+  description = "SQL server name"
+}
 
-# variable "appServPlanName" {
-#   description = "Name of the app service plan"
-# }
+variable "administrator_login_appser" {
+  type        = string
+  description = "SQL administrator login"
+}
 
-# variable "appServPlanTier" {
-#   description = "app service plan's tier"
-# }
+variable "sql_server_version_appser" {
+  type        = string
+  description = "SQL server version"
+}
 
-# variable "appServPlanSKU" {
-#   description = "app service plan's instance size"
-# }
+variable "sql_sku_appser" {
+  type        = string
+  description = "SQL database SKU"
+}
 
-# variable "kind" {
-#   description = "The kind of the App Service Plan to create. Possible values are Windows (also available as App), Linux, elastic (for Premium Consumption) and FunctionApp (for a Consumption Plan). Defaults to Windows. Changing this forces a new resource to be created."
-# }
+variable "appsersqldb_name" {
+  type        = string
+  description = "First SQL database name"
+}
 
-# variable "appser_sql_server_name" {
-#   type = string
-#   description = "The name of the database."
-# }
+variable "appser_sqldb1" {
+  type        = string
+  description = "Second SQL database name"
+}
 
-# variable "administrator_login_appser" {
-#   type = string
-#   description = "Specifies the name of the SQL administrator."
-# }
+variable "sql_redundancy_appser" {
+  type        = bool
+  description = "Whether the first database is zone redundant"
+}
 
-# variable "sql_server_version_appser" { 
-#   type = string
-#   description = "SQl Server version"
-# }
+variable "appser_endpoint" {
+  type        = string
+  description = "SQL private endpoint name"
+}
 
-# variable "sql_storage_appser"{
-#   type = string
-#   description = "Appsevice Sql Storage Name"
-# }
+variable "sql_admin_secret_name" {
+  type        = string
+  description = "Key Vault secret name for the SQL admin password"
+}
 
-# variable "appsersqldb_name"{
-#   type = string
-#   description = "Appsevice Sql Database Name"
-# }
-
-# variable "appser_sqldb1" {
-#     type = string
-#     description = "Appsevice Sql Database Name"
-# }
-
-# variable "sql_redundancy_appser" {
-#   description = "Sql redundancy_appser"
-# }
-
-#Variables for azurerm_app_service
-# variable "appServiceName1" {
-#   type = string
-#   description = "Name of the app service 1"
-# }
-
-# variable "appServiceName2" {
-#   type = string
-#   description = "Name of the app service 2"
-# }
-# variable "appsersubnet_id" {
-#   type = string
-# }
-
-# variable "appser_endpoint" {
-#   type = string
-# }
-
-
-# Databrciks variables
-// variable "dbrlogworkspace-name" {
-//   type        = string
-//   description = "The workspace name"
-//   #default     = "law-ads-eus2-core-dev-001"
-// }
-// variable "vnet_id" {
-//   type        = string
-//   description = "The vnet_id"
-//   default     = ""
-// }
-
-// variable "dbrsku" {
-//   type        = string
-//   description = "The sku"
-//   #default     = "PerGB2018"
-// }
- 
-// variable "security_group_name_public_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
-
-// variable "security_group_name_private_dbr" {
-//   type        = string
-//   description = "names of the security groups created by this module"
-//   default     = ""
-// }
-
-// variable "private_address_prefix_dbr" {
-//   type        = list
-//   description = "The private_address_prefix"
-// }
-
-// variable "public_address_prefix_dbr" {
-//   type        = list
-//   description = "The public_address_prefix"
-// }
 
 variable "sku_premium" {
   type        = string
   description = "The sku "
 }
 
-// variable "rgvnet" {
-//   type        = string
-//   description = "Name of resource group which contains the virtual network and subnets"
-// }
 
-// variable "private_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the private subnet"
-// }
-
-// variable "public_subnet_name_dbr" {
-//   type        = string
-//   description = "Name of the public subnet"
-// }
 
 variable "rgdbr" {
   type        = string
@@ -608,5 +489,27 @@ variable "databricksworkspace_name" {
   type        = string
   description = "Name of the workspace"
 }
+variable "managed_resource_group_name" {
+  type        = string
+  description = "Name of the Databricks-managed resource group (created and owned by Azure Databricks)"
+}
 
+variable "dbrlogworkspace_name" {
+  type        = string
+  description = "Databricks Log Analytics workspace name"
+}
 
+variable "dbrsku" {
+  type        = string
+  description = "Databricks Log Analytics SKU"
+}
+
+variable "dbx_public_subnet_name" {
+  type        = string
+  description = "Databricks public subnet name (must match the VNet subnet)"
+}
+
+variable "dbx_private_subnet_name" {
+  type        = string
+  description = "Databricks private subnet name (must match the VNet subnet)"
+}
