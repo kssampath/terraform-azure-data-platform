@@ -1,5 +1,10 @@
 # Terraform Modules
 
+![Terraform](https://img.shields.io/badge/Terraform-1.x-7B42BC?logo=terraform&logoColor=white)
+![azurerm](https://img.shields.io/badge/azurerm-~%3E%204.0-0078D4?logo=microsoftazure&logoColor=white)
+![Cloud](https://img.shields.io/badge/cloud-Azure-0078D4?logo=microsoftazure&logoColor=white)
+![IaC](https://img.shields.io/badge/IaC-Terraform-blueviolet)
+
 Infrastructure-as-code for provisioning the **Enterprise Data Hub (EDH)** platform on **Microsoft Azure**. This repository holds reusable Terraform modules and the environment configurations that compose them.
 
 ---

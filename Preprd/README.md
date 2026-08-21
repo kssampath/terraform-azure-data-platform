@@ -1,5 +1,9 @@
 # Terraform Modules — EDH Pre-prod (Azure)
-
+![Terraform](https://img.shields.io/badge/Terraform-1.x-7B42BC?logo=terraform&logoColor=white)
+![azurerm](https://img.shields.io/badge/azurerm-~%3E%204.0-0078D4?logo=microsoftazure&logoColor=white)
+![Cloud](https://img.shields.io/badge/cloud-Azure-0078D4?logo=microsoftazure&logoColor=white)
+![Modules](https://img.shields.io/badge/modules-10-success)
+![IaC](https://img.shields.io/badge/IaC-Terraform-blueviolet)
 Terraform configuration that provisions the Azure infrastructure for the **Enterprise Data Hub (EDH)** **pre-prod** environment in the **East US 2** region. The stack is organised as a single root configuration that composes a set of reusable child modules, one per Azure service.
 
 > This stack has been modernised to **Terraform 1.x** and the **azurerm 4.x** provider. All modules are active. See the [Modernisation](#modernisation) section for the full before → after of what changed.
