@@ -43,24 +43,24 @@ resource "azurerm_role_assignment" "kv_admin" {
 # It depends on a VNet subnet; it will be added once the VNet module is migrated,
 # in a separate file/module that consumes this vault's ID via the output below.
 
-# resource "azurerm_private_endpoint" "key-vault-pep" {
-#   name                 = var.key_vault_end_point_name # "pep-kv-ads-eus2-edhpreprd-dev-001"
-#   location             = var.location
-#   resource_group_name  = "rg-ads-eus2-pioneer-inn-armtotf"
-#   subnet_id            = var.kvsubnet_id #"/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
+resource "azurerm_private_endpoint" "key-vault-pep" {
+  name                = var.key_vault_end_point_name
+  location            = var.location
+  resource_group_name = var.rgkv
+  subnet_id           = var.kvsubnet_id
 
-#   private_service_connection {
-#     name                           = azurerm_key_vault.key_vault.name
-#     is_manual_connection           = false
-#     private_connection_resource_id = azurerm_key_vault.key_vault.id
-#     subresource_names              = ["vault"]
-#   }
+  private_service_connection {
+    name                           = azurerm_key_vault.key_vault.name
+    is_manual_connection           = false
+    private_connection_resource_id = azurerm_key_vault.key_vault.id
+    subresource_names              = ["vault"]
+  }
 
-#   tags = {
-#     AppId = var.AppId 
-#     environment = var.environment
-#     DataClassification = var.DataClassification
-#     Role = var.Role
-#     SupportGroup = var.SupportGroup 
-#   }
-# }
+  tags = {
+    AppId              = var.AppId
+    environment        = var.environment
+    DataClassification = var.DataClassification
+    Role               = var.Role
+    SupportGroup       = var.SupportGroup
+  }
+}

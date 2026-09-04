@@ -109,74 +109,7 @@ variable "key_vault_end_point_name" {
   type        = string
   description = "Name of the Key Vault private endpoint"
 }
-# variable "storage_rg" {
-#   type = string
-#   description = "Resource group name of Storage_account"
-#   #default = "rg-ads-eus2-dstkpreprd-dev-001"
-# }
-
-# variable "storage-name" {
-#   type = string
-#   description = "Storage account name"
-#   #default = ""
-# }
-
-# variable "storsubnet_id" {
-#   type = string
-#   description = "The subnet_id"
-# #  default = "/subscriptions/eecd271c-6ad0-435b-9ff3-495957463af0/resourceGroups/rg-ads-eus2-pioneer-inn-armtotf/providers/Microsoft.Network/virtualNetworks/vnet-ads-eus2-analytics-int-edhpreprd-004/subnets/sn-ads-eus2-analytics-edhpreprd-pep-001"
-# }
-# variable "account-tier" {
-#   type = string
-#   description = "The account tier"
-#   default = "Standard"
-# }
-
-# variable "replication-type" {
-#   type = string
-#   description = "The replication type"
-#   default = "ZRS"
-# }
-
-# variable "storage-kind" {
-# 	description = "The storage kind"
-#     default = "StorageV2"
-# }
-
-# variable "storage-tls" {
-# 	description = "The storage tls"
-#     default = "TLS1_2"
-# }
-
-# variable "privateendpointnameBlob" {
-#   type = string
-#   description = "The privateend point of Blob"
-#   #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "privateendpointnamedfs" {
-#   type = string
-#   description = "The privateend point of dfs"
-#   #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "privateendpointnametb" {
-#   type = string
-#   description = "The privateend point of table"
-#   #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "privateendpointnamefile" {
-#   type = string
-#   description = "The privateend point of file"
-#   #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-# }
-
-# variable "privateendpointnamequ" {
-#   type = string
-#   description = "The privateend point of Queue"
-#   #default = "pep-dls2-blob-ads-eus2-edhpreprd-dev-001"
-# }
+# don't need a root variable for kvsubnet_id — it comes from the VNet output, not tfvars
 
 #Tag Variables
 variable "AppId" {
